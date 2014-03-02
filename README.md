@@ -6,9 +6,10 @@
 
 #轉換檔案格式 NJAudioStreamParser
 NJAudioStreamParser 可以藉由 NJPlayer 從 NJAudioFileFetcher 拿到需要剖析的 raw data。parser 最關心的其實是 raw data 中的兩個關鍵資料。
+
 - 只要 parser 在這些不全的資料中找到 AudioStreamBasicDescription (	ASBD)它就會利用 delegate 的方式通知 NJPlayer 處理。
 - 找到 ASBD 後，只要 parser 找到一個完整的 packet 它也會再把資料利用 delegate 的方式丟給 NJPlayer。
-- 
+
 #播歌 NJAudioQueue
 - NJAudioQueue 可以藉由 NJPlayer 從 NJAudioStreamParser 得到 ASBD ，也就是說 audio queue 得到了播歌所需要的 metadata 於是我們就可以建立 audio queue 準備來播放歌曲了。
 - 接著 NJAudioQueue 也會藉由 NJPlayer 從 NJAudioStreamParser 陸續得到部分的 packet。此時，我們就可以讓 audio queue alloc 出 buffer 的位置以便讓這些 packets 資料能夠 enqueue 進 audio queue 裡。
