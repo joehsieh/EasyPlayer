@@ -7,6 +7,7 @@
 //
 
 #import "NJAudioStreamParser.h"
+#import "AudioUtilities.h"
 
 @interface NJAudioStreamParser()
 {
@@ -36,14 +37,14 @@ void parserDidParsePacket (
     self = [super init];
     if (self) {
         self.audioParserDelegate = inDelegate;
-        AudioFileStreamOpen((__bridge void *)(self), parserDidParseProperty, parserDidParsePacket,  0, &audioFileStreamID);
+		CheckError(AudioFileStreamOpen((__bridge void *)(self), parserDidParseProperty, parserDidParsePacket,  0, &audioFileStreamID), "Open file stream fail");
     }
     return self;
 }
 
 - (void)parseBytes:(NSData *)inData
 {
-    AudioFileStreamParseBytes(audioFileStreamID, inData.length, inData.bytes, 0);
+	CheckError(AudioFileStreamParseBytes(audioFileStreamID, inData.length, inData.bytes, 0), "Parse file stream fail");
 }
 
 void parserDidParseProperty (
@@ -55,10 +56,9 @@ void parserDidParseProperty (
 {
     NJAudioStreamParser *self = (__bridge NJAudioStreamParser *)inClientData;
     if (inPropertyID == kAudioFileStreamProperty_DataFormat) {
-		OSStatus status = 0;
 		AudioStreamBasicDescription audioStreamDescription;
         UInt32 descriptionSize = sizeof(AudioStreamBasicDescription);
-        status = AudioFileStreamGetProperty(inAudioFileStream, kAudioFileStreamProperty_DataFormat, &descriptionSize, &audioStreamDescription);
+		CheckError(AudioFileStreamGetProperty(inAudioFileStream, kAudioFileStreamProperty_DataFormat, &descriptionSize, &audioStreamDescription), "Get property fail");
         [self.audioParserDelegate audioParser:self didParseASBD:audioStreamDescription];
         
     }

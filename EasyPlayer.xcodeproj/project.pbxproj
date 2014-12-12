@@ -41,6 +41,7 @@
 /* Begin PBXFileReference section */
 		390D0A631A3AE45700947F7F /* JHProgressBar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JHProgressBar.h; sourceTree = "<group>"; };
 		390D0A641A3AE45700947F7F /* JHProgressBar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JHProgressBar.m; sourceTree = "<group>"; };
+		390D0A6A1A3AF54800947F7F /* AudioUtilities.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AudioUtilities.h; sourceTree = "<group>"; };
 		531EFD2C18B7B7A500D63C62 /* EasyPlayer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EasyPlayer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		531EFD2F18B7B7A500D63C62 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		531EFD3118B7B7A500D63C62 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -123,6 +124,7 @@
 				53D3CA3218B90F3500650679 /* NJAudioStreamParser.m */,
 				53D3CA7C18C0B35400650679 /* NJAudioQueue.h */,
 				53D3CA7D18C0B35400650679 /* NJAudioQueue.m */,
+				390D0A6A1A3AF54800947F7F /* AudioUtilities.h */,
 			);
 			name = Audio;
 			sourceTree = "<group>";

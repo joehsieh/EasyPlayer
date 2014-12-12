@@ -7,6 +7,7 @@
 //
 
 #import "NJAudioQueue.h"
+#import "AudioUtilities.h"
 
 void audioQueueOutputCallback (void *inUserData, AudioQueueRef inAQ, AudioQueueBufferRef inBuffer);
 void audioQueuePropertyDidChange(void *inData, AudioQueueRef inAQ, AudioQueuePropertyID inID);
@@ -15,7 +16,7 @@ void audioQueuePropertyDidChange(void *inData, AudioQueueRef inAQ, AudioQueuePro
 
 - (void)dealloc
 {
-	AudioQueueDispose(audioQueue, YES);
+	CheckError(AudioQueueDispose(audioQueue, YES), "Dispose audio queue fail.");
 }
 
 - (id)initWithDelegate:(id<NJAudioQueueDelegate>)inDelegate
@@ -26,40 +27,37 @@ void audioQueuePropertyDidChange(void *inData, AudioQueueRef inAQ, AudioQueuePro
     }
     return self;
 }
-- (OSStatus)start
+- (void)start
 {
-	OSStatus status = AudioQueueStart(audioQueue, NULL);
+	CheckError(AudioQueueStart(audioQueue, NULL), "Start queue fail");
     [self.delegate audioQueueDidResume:self];
-    return status;
 }
 
-- (OSStatus)pause
+- (void)pause
 {
-	OSStatus status = AudioQueuePause(audioQueue);
+	CheckError(AudioQueuePause(audioQueue), "Pause queue fail");
     [self.delegate audioQueueDidPause:self];
-    return status;
 }
 
-- (OSStatus)stop
+- (void)stop
 {
-	return AudioQueueStop(audioQueue, true);
+	CheckError(AudioQueueStop(audioQueue, true), "Stop queue fail");
 }
 
 - (void)setASBD:(AudioStreamBasicDescription)inASBD
 {
-    OSStatus status = AudioQueueNewOutput (
-        &inASBD,
-        audioQueueOutputCallback,
-        (__bridge void *)(self),
-        CFRunLoopGetMain (),
-        kCFRunLoopCommonModes,
-        0,
-        &audioQueue
-    );
-    assert(status == noErr);
-    status = AudioQueueAddPropertyListener (audioQueue, kAudioQueueProperty_IsRunning, audioQueuePropertyDidChange, (__bridge void *)(self));
-    AudioQueuePrime(audioQueue, 0, NULL);
-	assert(status == noErr);
+	CheckError(AudioQueueNewOutput (
+									&inASBD,
+									audioQueueOutputCallback,
+									(__bridge void *)(self),
+									CFRunLoopGetMain (),
+									kCFRunLoopCommonModes,
+									0,
+									&audioQueue
+									), "New audio queue fail");
+
+	CheckError(AudioQueueAddPropertyListener (audioQueue, kAudioQueueProperty_IsRunning, audioQueuePropertyDidChange, (__bridge void *)(self)), "Add property listener fail");
+	CheckError(AudioQueuePrime(audioQueue, 0, NULL), "Prime audio queue fail");
 }
 
 - (AudioQueueBufferRef)createAudioQueueBufferRefWithData:(NSData *)data
@@ -67,21 +65,17 @@ void audioQueuePropertyDidChange(void *inData, AudioQueueRef inAQ, AudioQueuePro
 				packetDescriptions:(AudioStreamPacketDescription *)packetDescriptions
 {
     AudioQueueBufferRef outBufferRef;
-	OSStatus status = AudioQueueAllocateBufferWithPacketDescriptions(self->audioQueue, (UInt32)data.length, packetCount, &outBufferRef);
+	CheckError(AudioQueueAllocateBufferWithPacketDescriptions(self->audioQueue, (UInt32)data.length, packetCount, &outBufferRef), "Allocate buffer fail");
     memcpy(outBufferRef->mAudioData, data.bytes, data.length);
     outBufferRef->mAudioDataByteSize = (UInt32)data.length;
     memcpy(outBufferRef->mPacketDescriptions, packetDescriptions, sizeof(AudioStreamPacketDescription) * packetCount);
     outBufferRef->mPacketDescriptionCount = packetCount;
-	
-    assert(status == noErr);
 	return outBufferRef;
 }
 
-- (OSStatus)enqueueBuffer:(AudioQueueBufferRef)bufferRef
+- (void)enqueueBuffer:(AudioQueueBufferRef)bufferRef
 {
-	OSStatus status = AudioQueueEnqueueBuffer(audioQueue, bufferRef, 0, NULL);
-    assert(status == noErr);
-	return status;
+	CheckError(AudioQueueEnqueueBuffer(audioQueue, bufferRef, 0, NULL), "Enqueue buffer fail");
 }
 
 void audioQueueOutputCallback (void *inUserData, AudioQueueRef inAQ, AudioQueueBufferRef inBuffer)
@@ -94,9 +88,7 @@ void audioQueuePropertyDidChange(void *inData, AudioQueueRef inAQ, AudioQueuePro
     NJAudioQueue *self = (__bridge NJAudioQueue *)inData;
 	int result = 0;
 	UInt32 size = sizeof(UInt32);
-	OSStatus status = AudioQueueGetProperty (self->audioQueue, kAudioQueueProperty_IsRunning, &result, &size);
-    assert(status == noErr);
-    result ? [self->delegate audioQueueDidStart:self] : [self->delegate audioQueueDidStop:self];
+	CheckError(AudioQueueGetProperty (self->audioQueue, kAudioQueueProperty_IsRunning, &result, &size), "Get property fail");
+    result ? [self.delegate audioQueueDidStart:self] : [self.delegate audioQueueDidStop:self];
 }
-@synthesize delegate;
 @end

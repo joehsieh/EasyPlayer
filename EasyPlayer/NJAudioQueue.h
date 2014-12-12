@@ -20,17 +20,16 @@
 @interface NJAudioQueue : NSObject
 {
     AudioQueueRef audioQueue;
-    __unsafe_unretained id<NJAudioQueueDelegate> delegate;
 }
-@property (nonatomic, assign) id <NJAudioQueueDelegate> delegate;
-- (id)initWithDelegate:(id<NJAudioQueueDelegate>)inDelegate;
-- (OSStatus)start;
-- (OSStatus)pause;
-- (OSStatus)stop;
+@property (weak, nonatomic) id <NJAudioQueueDelegate> delegate;
+- (id)initWithDelegate:(id <NJAudioQueueDelegate>)inDelegate;
+- (void)start;
+- (void)pause;
+- (void)stop;
 - (AudioQueueBufferRef)createAudioQueueBufferRefWithData:(NSData *)data
                                              packetCount:(UInt32)packetCount
                                       packetDescriptions:(AudioStreamPacketDescription *)packetDescriptions;
-- (OSStatus)enqueueBuffer:(AudioQueueBufferRef)bufferRef;
+- (void)enqueueBuffer:(AudioQueueBufferRef)bufferRef;
 
 - (void)setASBD:(AudioStreamBasicDescription)inASBD;
 @end
