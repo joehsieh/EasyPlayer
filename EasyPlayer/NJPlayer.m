@@ -112,8 +112,5 @@
 {
     [self.delegate playerDidResumePlayingSong:self];
 }
-@synthesize delegate;
-@synthesize audioQueue;
-@synthesize streamParser;
-@synthesize fetcher;
+
 @end

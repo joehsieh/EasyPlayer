@@ -9,8 +9,10 @@
 #import "NJAudioStreamParser.h"
 
 @interface NJAudioStreamParser()
+{
+	AudioFileStreamID audioFileStreamID;
+}
 @property (nonatomic, assign) id<NJAudioStreamParserDelegate> audioParserDelegate;
-@property (nonatomic, assign) AudioFileStreamID audioFileStreamID;
 @end
 void parserDidParseProperty (
     void                        *inClientData,
@@ -77,6 +79,4 @@ void parserDidParsePacket (
     [self.audioParserDelegate audioParser:self didParsePacket:[NSData dataWithBytes:inInputData length:inNumberBytes] pakcageCount:inNumberPackets packetDescription:inPacketDescriptions];
 }
 
-@synthesize audioParserDelegate;
-@synthesize audioFileStreamID;
 @end

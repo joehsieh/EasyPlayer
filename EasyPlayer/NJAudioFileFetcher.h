@@ -18,10 +18,7 @@
 
 @end
 @interface NJAudioFileFetcher : NSObject <NSURLSessionDataDelegate>
-{
-    __weak id<NJAudioFileFetcherDelegate> delegate;
-}
-@property (nonatomic, weak) id<NJAudioFileFetcherDelegate> delegate;
+@property (weak, nonatomic) id<NJAudioFileFetcherDelegate> delegate;
 - (instancetype)initWithDelegate:(id<NJAudioFileFetcherDelegate>)inDelegate;
 - (void)fetchMusicWithURL:(NSURL *)inURL;
 @end

@@ -8,11 +8,6 @@
 
 #import "NJAudioFileFetcher.h"
 @interface NJAudioFileFetcher()
-{
-    NSURLSession *URLSession;
-    NSURLSessionDataTask *task;
-    NSOperationQueue *queue;
-}
 @property (nonatomic, strong) NSURLSession *URLSession;
 @property (nonatomic, strong) NSURLSessionDataTask *task;
 @property (nonatomic, strong) NSOperationQueue *queue;
@@ -60,8 +55,4 @@ didCompleteWithError:(NSError *)error
     [self.delegate musicFileFetcher:self didReceiveData:data];
 }
 
-@synthesize URLSession;
-@synthesize delegate;
-@synthesize task;
-@synthesize queue;
 @end

@@ -14,7 +14,6 @@
 @class NJPlayer;
 
 @protocol NJPlayerDelegate <NSObject>
-
 - (void)playerDidStartPlayingSong:(NJPlayer *)inPlayer;
 - (void)playerDidStopPlayingSong:(NJPlayer *)inPlayer;
 - (void)playerDidPausePlayingSong:(NJPlayer *)inPlayer;

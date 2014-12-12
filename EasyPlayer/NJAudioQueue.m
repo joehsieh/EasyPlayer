@@ -13,6 +13,11 @@ void audioQueuePropertyDidChange(void *inData, AudioQueueRef inAQ, AudioQueuePro
 
 @implementation NJAudioQueue
 
+- (void)dealloc
+{
+	AudioQueueDispose(audioQueue, YES);
+}
+
 - (id)initWithDelegate:(id<NJAudioQueueDelegate>)inDelegate
 {
     self = [super init];
@@ -62,9 +67,9 @@ void audioQueuePropertyDidChange(void *inData, AudioQueueRef inAQ, AudioQueuePro
 				packetDescriptions:(AudioStreamPacketDescription *)packetDescriptions
 {
     AudioQueueBufferRef outBufferRef;
-	OSStatus status = AudioQueueAllocateBufferWithPacketDescriptions(self->audioQueue, data.length, packetCount, &outBufferRef);
+	OSStatus status = AudioQueueAllocateBufferWithPacketDescriptions(self->audioQueue, (UInt32)data.length, packetCount, &outBufferRef);
     memcpy(outBufferRef->mAudioData, data.bytes, data.length);
-    outBufferRef->mAudioDataByteSize = data.length;
+    outBufferRef->mAudioDataByteSize = (UInt32)data.length;
     memcpy(outBufferRef->mPacketDescriptions, packetDescriptions, sizeof(AudioStreamPacketDescription) * packetCount);
     outBufferRef->mPacketDescriptionCount = packetCount;
 	
@@ -87,7 +92,6 @@ void audioQueueOutputCallback (void *inUserData, AudioQueueRef inAQ, AudioQueueB
 void audioQueuePropertyDidChange(void *inData, AudioQueueRef inAQ, AudioQueuePropertyID inID)
 {
     NJAudioQueue *self = (__bridge NJAudioQueue *)inData;
-	
 	int result = 0;
 	UInt32 size = sizeof(UInt32);
 	OSStatus status = AudioQueueGetProperty (self->audioQueue, kAudioQueueProperty_IsRunning, &result, &size);
