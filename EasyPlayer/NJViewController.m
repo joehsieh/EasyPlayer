@@ -8,6 +8,8 @@
 
 #import "NJViewController.h"
 #import "NJPlayer.h"
+#import "JHProgressBar.h"
+
 typedef NS_ENUM(NSInteger, PlayerStateType) {
     PlayerStateOff,
     PlayerStatePlaying,
@@ -44,10 +46,14 @@ typedef NS_ENUM(NSInteger, PlayerStateType) {
     }
 }
 
-- (void)didReceiveMemoryWarning
+- (IBAction)playPreviousSong:(id)sender
 {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+#warning todo
+}
+
+- (IBAction)playNextSong:(id)sender
+{
+#warning todo
 }
 
 #pragma mark - NJPlayerDelegate
@@ -57,19 +63,28 @@ typedef NS_ENUM(NSInteger, PlayerStateType) {
     self.playerState = PlayerStatePlaying;
     [self.playSongBtn setImage:[UIImage imageNamed:@"pause"] forState:UIControlStateNormal];
 }
+
 - (void)playerDidStopPlayingSong:(NJPlayer *)inPlayer
 {
     self.playerState = PlayerStateOff;
     [self.playSongBtn setImage:[UIImage imageNamed:@"play"] forState:UIControlStateNormal];
 }
+
 - (void)playerDidPausePlayingSong:(NJPlayer *)inPlayer
 {
     self.playerState  = PlayerStatePaused;
     [self.playSongBtn setImage:[UIImage imageNamed:@"play"] forState:UIControlStateNormal];
 }
+
 - (void)playerDidResumePlayingSong:(NJPlayer *)inPlayer
 {
     self.playerState  = PlayerStatePlaying;
     [self.playSongBtn setImage:[UIImage imageNamed:@"pause"] forState:UIControlStateNormal];
 }
+
+- (void)player:(NJPlayer *)inPlayer updatePlaybackTime:(NSTimeInterval)inTime
+{
+	[self.progressBar updatePlayProgress:inTime];
+}
+
 @end

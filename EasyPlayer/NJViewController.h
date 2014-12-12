@@ -8,9 +8,13 @@
 
 #import <UIKit/UIKit.h>
 #import "NJPlayer.h"
+@class JHProgressBar;
 
 @interface NJViewController : UIViewController <NJPlayerDelegate>
-@property (nonatomic, assign) IBOutlet UIButton *playSongBtn;
-@property (nonatomic, assign) IBOutlet UITextField *songURLTextField;
+@property (assign, nonatomic) IBOutlet UIButton *playSongBtn;
+@property (assign, nonatomic) IBOutlet JHProgressBar *progressBar;
+@property (assign, nonatomic) IBOutlet UITextField *songURLTextField;
 - (IBAction)playSong:(id)sender;
+- (IBAction)playPreviousSong:(id)sender;
+- (IBAction)playNextSong:(id)sender;
 @end

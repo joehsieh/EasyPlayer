@@ -18,6 +18,8 @@
 - (void)playerDidStopPlayingSong:(NJPlayer *)inPlayer;
 - (void)playerDidPausePlayingSong:(NJPlayer *)inPlayer;
 - (void)playerDidResumePlayingSong:(NJPlayer *)inPlayer;
+#warning todo
+- (void)player:(NJPlayer *)inPlayer updatePlaybackTime:(NSTimeInterval)inTime;
 @end
 @interface NJPlayer : NSObject <NJAudioFileFetcherDelegate, NJAudioStreamParserDelegate, NJAudioQueueDelegate>
 + (instancetype)sharedPlayer;

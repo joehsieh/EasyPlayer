@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		390D0A651A3AE45700947F7F /* JHProgressBar.m in Sources */ = {isa = PBXBuildFile; fileRef = 390D0A641A3AE45700947F7F /* JHProgressBar.m */; };
 		531EFD3018B7B7A500D63C62 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 531EFD2F18B7B7A500D63C62 /* Foundation.framework */; };
 		531EFD3218B7B7A500D63C62 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 531EFD3118B7B7A500D63C62 /* CoreGraphics.framework */; };
 		531EFD3418B7B7A500D63C62 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 531EFD3318B7B7A500D63C62 /* UIKit.framework */; };
@@ -38,6 +39,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		390D0A631A3AE45700947F7F /* JHProgressBar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JHProgressBar.h; sourceTree = "<group>"; };
+		390D0A641A3AE45700947F7F /* JHProgressBar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JHProgressBar.m; sourceTree = "<group>"; };
 		531EFD2C18B7B7A500D63C62 /* EasyPlayer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EasyPlayer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		531EFD2F18B7B7A500D63C62 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		531EFD3118B7B7A500D63C62 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -91,6 +94,39 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		390D0A621A3AE44A00947F7F /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				390D0A631A3AE45700947F7F /* JHProgressBar.h */,
+				390D0A641A3AE45700947F7F /* JHProgressBar.m */,
+			);
+			name = Views;
+			sourceTree = "<group>";
+		};
+		390D0A661A3AE45D00947F7F /* Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				531EFD4418B7B7A500D63C62 /* NJViewController.h */,
+				531EFD4518B7B7A500D63C62 /* NJViewController.m */,
+			);
+			name = Controllers;
+			sourceTree = "<group>";
+		};
+		390D0A671A3AE46B00947F7F /* Audio */ = {
+			isa = PBXGroup;
+			children = (
+				53D3CA2E18B7CDFB00650679 /* NJPlayer.h */,
+				53D3CA2F18B7CDFB00650679 /* NJPlayer.m */,
+				531EFD6418B7B81E00D63C62 /* NJAudioFileFetcher.h */,
+				531EFD6518B7B81E00D63C62 /* NJAudioFileFetcher.m */,
+				53D3CA3118B90F3500650679 /* NJAudioStreamParser.h */,
+				53D3CA3218B90F3500650679 /* NJAudioStreamParser.m */,
+				53D3CA7C18C0B35400650679 /* NJAudioQueue.h */,
+				53D3CA7D18C0B35400650679 /* NJAudioQueue.m */,
+			);
+			name = Audio;
+			sourceTree = "<group>";
+		};
 		531EFD2318B7B7A500D63C62 = {
 			isa = PBXGroup;
 			children = (
@@ -124,21 +160,14 @@
 		531EFD3518B7B7A500D63C62 /* EasyPlayer */ = {
 			isa = PBXGroup;
 			children = (
+				390D0A671A3AE46B00947F7F /* Audio */,
+				390D0A661A3AE45D00947F7F /* Controllers */,
+				390D0A621A3AE44A00947F7F /* Views */,
 				531EFD3E18B7B7A500D63C62 /* NJAppDelegate.h */,
 				531EFD3F18B7B7A500D63C62 /* NJAppDelegate.m */,
 				531EFD4118B7B7A500D63C62 /* Main.storyboard */,
-				531EFD4418B7B7A500D63C62 /* NJViewController.h */,
-				531EFD4518B7B7A500D63C62 /* NJViewController.m */,
 				531EFD4718B7B7A500D63C62 /* Images.xcassets */,
 				531EFD3618B7B7A500D63C62 /* Supporting Files */,
-				53D3CA2E18B7CDFB00650679 /* NJPlayer.h */,
-				53D3CA2F18B7CDFB00650679 /* NJPlayer.m */,
-				531EFD6418B7B81E00D63C62 /* NJAudioFileFetcher.h */,
-				531EFD6518B7B81E00D63C62 /* NJAudioFileFetcher.m */,
-				53D3CA3118B90F3500650679 /* NJAudioStreamParser.h */,
-				53D3CA3218B90F3500650679 /* NJAudioStreamParser.m */,
-				53D3CA7C18C0B35400650679 /* NJAudioQueue.h */,
-				53D3CA7D18C0B35400650679 /* NJAudioQueue.m */,
 			);
 			path = EasyPlayer;
 			sourceTree = "<group>";
@@ -276,6 +305,7 @@
 				53D3CA3018B7CDFB00650679 /* NJPlayer.m in Sources */,
 				53D3CA3318B90F3500650679 /* NJAudioStreamParser.m in Sources */,
 				531EFD4018B7B7A500D63C62 /* NJAppDelegate.m in Sources */,
+				390D0A651A3AE45700947F7F /* JHProgressBar.m in Sources */,
 				531EFD3C18B7B7A500D63C62 /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
