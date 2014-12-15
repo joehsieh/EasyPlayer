@@ -10,7 +10,7 @@
 #import "AudioUtilities.h"
 
 void audioQueueOutputCallback (void *inUserData, AudioQueueRef inAQ, AudioQueueBufferRef inBuffer);
-void audioQueuePropertyDidChange(void *inData, AudioQueueRef inAQ, AudioQueuePropertyID inID);
+void audioQueueIsRunning(void *inData, AudioQueueRef inAQ, AudioQueuePropertyID inID);
 
 @implementation NJAudioQueue
 
@@ -56,7 +56,7 @@ void audioQueuePropertyDidChange(void *inData, AudioQueueRef inAQ, AudioQueuePro
 									&audioQueue
 									), "New audio queue fail");
 
-	CheckError(AudioQueueAddPropertyListener (audioQueue, kAudioQueueProperty_IsRunning, audioQueuePropertyDidChange, (__bridge void *)(self)), "Add property listener fail");
+	CheckError(AudioQueueAddPropertyListener (audioQueue, kAudioQueueProperty_IsRunning, audioQueueIsRunning, (__bridge void *)(self)), "Add property listener fail");
 	CheckError(AudioQueuePrime(audioQueue, 0, NULL), "Prime audio queue fail");
 }
 
@@ -85,7 +85,7 @@ void audioQueueOutputCallback(void *inUserData, AudioQueueRef inAQ, AudioQueueBu
 	}
 }
 
-void audioQueuePropertyDidChange(void *inData, AudioQueueRef inAQ, AudioQueuePropertyID inID)
+void audioQueueIsRunning(void *inData, AudioQueueRef inAQ, AudioQueuePropertyID inID)
 {
     NJAudioQueue *self = (__bridge NJAudioQueue *)inData;
 	int result = 0;
