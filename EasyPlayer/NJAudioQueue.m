@@ -78,9 +78,11 @@ void audioQueuePropertyDidChange(void *inData, AudioQueueRef inAQ, AudioQueuePro
 	CheckError(AudioQueueEnqueueBuffer(audioQueue, bufferRef, 0, NULL), "Enqueue buffer fail");
 }
 
-void audioQueueOutputCallback (void *inUserData, AudioQueueRef inAQ, AudioQueueBufferRef inBuffer)
+void audioQueueOutputCallback(void *inUserData, AudioQueueRef inAQ, AudioQueueBufferRef inBuffer)
 {
-    
+	if (inBuffer) {
+		CheckError(AudioQueueFreeBuffer(inAQ, inBuffer), "Must free incoming buffer");
+	}
 }
 
 void audioQueuePropertyDidChange(void *inData, AudioQueueRef inAQ, AudioQueuePropertyID inID)
@@ -88,7 +90,7 @@ void audioQueuePropertyDidChange(void *inData, AudioQueueRef inAQ, AudioQueuePro
     NJAudioQueue *self = (__bridge NJAudioQueue *)inData;
 	int result = 0;
 	UInt32 size = sizeof(UInt32);
-	CheckError(AudioQueueGetProperty (self->audioQueue, kAudioQueueProperty_IsRunning, &result, &size), "Get property fail");
+	CheckError(AudioQueueGetProperty(self->audioQueue, kAudioQueueProperty_IsRunning, &result, &size), "Get property fail");
     result ? [self.delegate audioQueueDidStart:self] : [self.delegate audioQueueDidStop:self];
 }
 @end
