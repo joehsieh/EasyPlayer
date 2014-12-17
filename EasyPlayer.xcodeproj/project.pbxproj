@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		390D0A651A3AE45700947F7F /* JHProgressBar.m in Sources */ = {isa = PBXBuildFile; fileRef = 390D0A641A3AE45700947F7F /* JHProgressBar.m */; };
+		39B296DA1A41674500BB9BA7 /* NJAudioEngine.m in Sources */ = {isa = PBXBuildFile; fileRef = 39B296D91A41674500BB9BA7 /* NJAudioEngine.m */; };
 		531EFD3018B7B7A500D63C62 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 531EFD2F18B7B7A500D63C62 /* Foundation.framework */; };
 		531EFD3218B7B7A500D63C62 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 531EFD3118B7B7A500D63C62 /* CoreGraphics.framework */; };
 		531EFD3418B7B7A500D63C62 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 531EFD3318B7B7A500D63C62 /* UIKit.framework */; };
@@ -42,6 +43,8 @@
 		390D0A631A3AE45700947F7F /* JHProgressBar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JHProgressBar.h; sourceTree = "<group>"; };
 		390D0A641A3AE45700947F7F /* JHProgressBar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JHProgressBar.m; sourceTree = "<group>"; };
 		390D0A6A1A3AF54800947F7F /* AudioUtilities.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AudioUtilities.h; sourceTree = "<group>"; };
+		39B296D81A41674500BB9BA7 /* NJAudioEngine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NJAudioEngine.h; sourceTree = "<group>"; };
+		39B296D91A41674500BB9BA7 /* NJAudioEngine.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NJAudioEngine.m; sourceTree = "<group>"; };
 		531EFD2C18B7B7A500D63C62 /* EasyPlayer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EasyPlayer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		531EFD2F18B7B7A500D63C62 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		531EFD3118B7B7A500D63C62 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -125,6 +128,8 @@
 				53D3CA7C18C0B35400650679 /* NJAudioQueue.h */,
 				53D3CA7D18C0B35400650679 /* NJAudioQueue.m */,
 				390D0A6A1A3AF54800947F7F /* AudioUtilities.h */,
+				39B296D81A41674500BB9BA7 /* NJAudioEngine.h */,
+				39B296D91A41674500BB9BA7 /* NJAudioEngine.m */,
 			);
 			name = Audio;
 			sourceTree = "<group>";
@@ -304,6 +309,7 @@
 				531EFD4618B7B7A500D63C62 /* NJViewController.m in Sources */,
 				531EFD6618B7B81E00D63C62 /* NJAudioFileFetcher.m in Sources */,
 				53D3CA7E18C0B35400650679 /* NJAudioQueue.m in Sources */,
+				39B296DA1A41674500BB9BA7 /* NJAudioEngine.m in Sources */,
 				53D3CA3018B7CDFB00650679 /* NJPlayer.m in Sources */,
 				53D3CA3318B90F3500650679 /* NJAudioStreamParser.m in Sources */,
 				531EFD4018B7B7A500D63C62 /* NJAppDelegate.m in Sources */,

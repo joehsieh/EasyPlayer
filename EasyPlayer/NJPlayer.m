@@ -11,7 +11,8 @@
 @interface NJPlayer()
 @property (nonatomic, strong) NJAudioFileFetcher *fetcher;
 @property (nonatomic, strong) NJAudioStreamParser *streamParser;
-@property (nonatomic, strong) NJAudioQueue *audioQueue;
+//@property (nonatomic, strong) NJAudioQueue *audioQueue;
+@property (nonatomic, strong) NJAudioEngine *audioEngine;
 @end
 @implementation NJPlayer
 
@@ -31,7 +32,8 @@
     if (self) {
         self.fetcher = [[NJAudioFileFetcher alloc] initWithDelegate:self];
         self.streamParser = [[NJAudioStreamParser alloc] initWithDelegate:self];
-        self.audioQueue = [[NJAudioQueue alloc] initWithDelegate:self];
+//        self.audioQueue = [[NJAudioQueue alloc] initWithDelegate:self];
+		self.audioEngine = [[NJAudioEngine alloc] initWithDelegate:self];
     }
     return self;
 }
@@ -44,17 +46,20 @@
 
 - (void)stop
 {
-    [self.audioQueue stop];
+//    [self.audioQueue stop];
+	[self.audioEngine stop];
 }
 
 - (void)pause
 {
-    [self.audioQueue pause];
+//    [self.audioQueue pause];
+	[self.audioEngine pause];
 }
 
 - (void)resume
 {
-    [self.audioQueue start];
+//    [self.audioQueue start];
+	[self.audioEngine start];
 }
 
 #pragma mark - NJMusicFileFetcherDelegate
@@ -78,39 +83,65 @@
 
 - (void)audioParser:(NJAudioStreamParser *)inParser didParseASBD:(AudioStreamBasicDescription)inASBD
 {
-    [self.audioQueue setASBD:inASBD];
+//    [self.audioQueue setASBD:inASBD];
+	[self.audioEngine setASBD:inASBD];
 }
 
 - (void)audioParserDidParsedEnoughDataToPlay:(NJAudioStreamParser *)inParser
 { 
     dispatch_sync(dispatch_get_main_queue(), ^{
-        [self.audioQueue start];
+//        [self.audioQueue start];
+		[self.audioEngine start];
     });
 }
 
 - (void)audioParser:(NJAudioStreamParser *)inParser didParsePacket:(NSData *)inPacket pakcageCount:(UInt32)inPacketCount packetDescription:(AudioStreamPacketDescription *)inPacketDescription
 {
-    AudioQueueBufferRef bufferRef = [self.audioQueue createAudioQueueBufferRefWithData:inPacket packetCount:inPacketCount packetDescriptions:inPacketDescription];
-    [self.audioQueue enqueueBuffer:bufferRef];
+	AudioBufferList list;
+	AudioBuffer buffer;
+//    AudioQueueBufferRef bufferRef = [self.audioQueue createAudioQueueBufferRefWithData:inPacket packetCount:inPacketCount packetDescriptions:inPacketDescription];
+//    [self.audioQueue enqueueBuffer:bufferRef];
 }
 
-#pragma mark - NJAudioQueueDelegate
+//#pragma mark - NJAudioQueueDelegate
+//
+//- (void)audioQueueDidStart:(NJAudioQueue *)inQueue
+//{
+//    [self.delegate playerDidStartPlayingSong:self];
+//}
+//- (void)audioQueueDidStop:(NJAudioQueue *)inQueue
+//{
+//    [self.delegate playerDidStopPlayingSong:self];
+//}
+//- (void)audioQueueDidPause:(NJAudioQueue *)inQueue
+//{
+//    [self.delegate playerDidPausePlayingSong:self];
+//}
+//- (void)audioQueueDidResume:(NJAudioQueue *)inQueue
+//{
+//    [self.delegate playerDidResumePlayingSong:self];
+//}
 
-- (void)audioQueueDidStart:(NJAudioQueue *)inQueue
+#pragma mark NJAudioEngineDelegate
+
+- (void)audioEngineDidStart:(NJAudioEngine *)inEngine
 {
-    [self.delegate playerDidStartPlayingSong:self];
+	[self.delegate playerDidStartPlayingSong:self];
 }
-- (void)audioQueueDidStop:(NJAudioQueue *)inQueue
+
+- (void)audioEngineDidStop:(NJAudioEngine *)inEngine
 {
-    [self.delegate playerDidStopPlayingSong:self];
+	[self.delegate playerDidStopPlayingSong:self];
 }
-- (void)audioQueueDidPause:(NJAudioQueue *)inQueue
+
+- (void)audioEngineDidPause:(NJAudioEngine *)inEngine
 {
-    [self.delegate playerDidPausePlayingSong:self];
+	[self.delegate playerDidPausePlayingSong:self];
 }
-- (void)audioQueueDidResume:(NJAudioQueue *)inQueue
+
+- (void)audioEngineDidResume:(NJAudioEngine *)inEngine
 {
-    [self.delegate playerDidResumePlayingSong:self];
+	[self.delegate playerDidResumePlayingSong:self];
 }
 
 @end

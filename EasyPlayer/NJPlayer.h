@@ -9,7 +9,8 @@
 #import <Foundation/Foundation.h>
 #import "NJAudioFileFetcher.h"
 #import "NJAudioStreamParser.h"
-#import "NJAudioQueue.h"
+//#import "NJAudioQueue.h"
+#import "NJAudioEngine.h"
 
 @class NJPlayer;
 
@@ -21,7 +22,8 @@
 #warning todo
 - (void)player:(NJPlayer *)inPlayer updatePlaybackTime:(NSTimeInterval)inTime;
 @end
-@interface NJPlayer : NSObject <NJAudioFileFetcherDelegate, NJAudioStreamParserDelegate, NJAudioQueueDelegate>
+//@interface NJPlayer : NSObject <NJAudioFileFetcherDelegate, NJAudioStreamParserDelegate, NJAudioQueueDelegate>
+@interface NJPlayer : NSObject <NJAudioFileFetcherDelegate, NJAudioStreamParserDelegate, NJAudioEngineDelegate>
 + (instancetype)sharedPlayer;
 - (void)playSongWithURL:(NSURL *)inURL;
 - (void)stop;
