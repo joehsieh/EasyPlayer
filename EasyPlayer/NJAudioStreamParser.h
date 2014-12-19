@@ -16,7 +16,7 @@
 
 - (void)audioParserDidParsedEnoughDataToPlay:(NJAudioStreamParser *)inParser;
 
-- (void)audioParser:(NJAudioStreamParser *)inParser didParsePacket:(NSData *)inPacket pakcageCount:(UInt32)inPacketCount packetDescription:(AudioStreamPacketDescription *)inPacketDescription;
+- (void)audioParser:(NJAudioStreamParser *)inParser didParsePacket:(const void *)inPacket pakcageCount:(UInt32)inPacketCount packetDescription:(AudioStreamPacketDescription *)inPacketDescription;
 
 @end
 @interface NJAudioStreamParser : NSObject

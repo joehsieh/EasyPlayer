@@ -28,5 +28,6 @@
 //									  packetDescriptions:(AudioStreamPacketDescription *)packetDescriptions;
 //- (void)enqueueBuffer:(AudioQueueBufferRef)bufferRef;
 
+- (void)storePacket:(const void *)inPacket pakcageCount:(UInt32)inPacketCount packetDescription:(AudioStreamPacketDescription *)inPacketDescription;
 - (void)setASBD:(AudioStreamBasicDescription)inASBD;
 @end

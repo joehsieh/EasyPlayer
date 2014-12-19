@@ -76,7 +76,7 @@ void parserDidParsePacket (
                            )
 {
     NJAudioStreamParser *self = (__bridge NJAudioStreamParser *)inClientData;
-    [self.audioParserDelegate audioParser:self didParsePacket:[NSData dataWithBytes:inInputData length:inNumberBytes] pakcageCount:inNumberPackets packetDescription:inPacketDescriptions];
+    [self.audioParserDelegate audioParser:self didParsePacket:inInputData pakcageCount:inNumberPackets packetDescription:inPacketDescriptions];
 }
 
 @end

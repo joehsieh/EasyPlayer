@@ -95,10 +95,9 @@
     });
 }
 
-- (void)audioParser:(NJAudioStreamParser *)inParser didParsePacket:(NSData *)inPacket pakcageCount:(UInt32)inPacketCount packetDescription:(AudioStreamPacketDescription *)inPacketDescription
+- (void)audioParser:(NJAudioStreamParser *)inParser didParsePacket:(const void *)inPacket pakcageCount:(UInt32)inPacketCount packetDescription:(AudioStreamPacketDescription *)inPacketDescription
 {
-	AudioBufferList list;
-	AudioBuffer buffer;
+	[self.audioEngine storePacket:inPacket pakcageCount:inPacketCount packetDescription:inPacketDescription];
 //    AudioQueueBufferRef bufferRef = [self.audioQueue createAudioQueueBufferRefWithData:inPacket packetCount:inPacketCount packetDescriptions:inPacketDescription];
 //    [self.audioQueue enqueueBuffer:bufferRef];
 }
