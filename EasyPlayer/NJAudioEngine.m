@@ -43,7 +43,14 @@ OSStatus NJFillUnCompressedData(AudioConverterRef               inAudioConverter
 	ioData->mNumberBuffers = 1;
 	ioData->mBuffers[0].mDataByteSize = packetInfo.packetDescription.mDataByteSize;
 	ioData->mBuffers[0].mData = packetInfo.data;
-	*outDataPacketDescription = &packetInfo.packetDescription;
+#warning we should not use aspd from retrieved packet directly.
+//	*outDataPacketDescription = &packetInfo.packetDescription;
+    UInt32 length = packetInfo.packetDescription.mDataByteSize;
+    static AudioStreamPacketDescription aspdesc;
+    *outDataPacketDescription = &aspdesc;
+    aspdesc.mDataByteSize = length;
+    aspdesc.mStartOffset = 0;
+    aspdesc.mVariableFramesInPacket = 1;
 	player->packetReadIndex ++;
 	return noErr;
 }
@@ -62,10 +69,11 @@ OSStatus NJAURenderCallback(void *							inRefCon,
 		ioData->mBuffers[0].mNumberChannels = 2;
 		ioData->mBuffers[0].mDataByteSize = player->renderAudioBufferList->mBuffers[0].mDataByteSize;
 		ioData->mBuffers[0].mData = player->renderAudioBufferList->mBuffers[0].mData;
-		player->renderAudioBufferList->mBuffers[0].mDataByteSize = player->renderBufferSize;
+#warning why?
+//		player->renderAudioBufferList->mBuffers[0].mDataByteSize = player->renderBufferSize;
 		status = noErr;
 	}
-	return noErr;
+	return status;
 }
 
 void NJRunningStateChangedCallback(void *inRefCon, AudioUnit ci, AudioUnitPropertyID inID, AudioUnitScope inScope, AudioUnitElement inElement)
@@ -224,7 +232,7 @@ void createAudioGraph(NJAUGraphPlayer *player)
 			}
 			packetInfo->data = malloc(packetDescription->mDataByteSize);
 			memcpy(packetInfo->data, inData + packetDescription->mStartOffset, packetDescription->mDataByteSize);
-			memcpy(&packetInfo->packetDescription, packetInfo, sizeof(NJAudioPacketInfo));
+			memcpy(&packetInfo->packetDescription, packetDescription, sizeof(AudioStreamPacketDescription));
 			player->packetWriteIndex ++;
 			player->loadedPacketCount ++;
 		}
