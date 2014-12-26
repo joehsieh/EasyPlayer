@@ -8,27 +8,8 @@
 
 #import "NJAudioEngine.h"
 #import "AudioUtilities.h"
+#import "NJPacketArray.h"
 @import AudioUnit;
-
-typedef struct {
-	AudioStreamPacketDescription packetDescription;
-	void *data;
-} NJAudioPacketInfo;
-
-typedef struct NJAUGraphPlayer
-{
-	AUGraph graph;
-	AudioStreamBasicDescription ASBD;
-	AudioConverterRef converter;
-
-	NJAudioPacketInfo *packets; // data structure to store packets
-	size_t expectedTotalPacketCount; // expected total packet count
-	size_t loadedPacketCount; // loaded packet count
-	size_t packetWriteIndex;
-	size_t packetReadIndex;
-	AudioBufferList *renderAudioBufferList;
-	UInt32 renderBufferSize;
-} NJAUGraphPlayer;
 
 #pragma render callback
 
@@ -38,20 +19,19 @@ OSStatus NJFillUnCompressedData(AudioConverterRef               inAudioConverter
 								AudioStreamPacketDescription**  outDataPacketDescription,
 								void*                           inUserData)
 {
-	NJAUGraphPlayer *player = (NJAUGraphPlayer *)inUserData;
-	NJAudioPacketInfo packetInfo = player->packets[player->packetReadIndex];
+	NJAudioEngine *audioEngine = (__bridge NJAudioEngine *)inUserData;
+	NJAudioPacketInfo *packetInfo = [audioEngine.packetArray readNextPacket];
 	ioData->mNumberBuffers = 1;
-	ioData->mBuffers[0].mDataByteSize = packetInfo.packetDescription.mDataByteSize;
-	ioData->mBuffers[0].mData = packetInfo.data;
+	ioData->mBuffers[0].mDataByteSize = packetInfo->packetDescription.mDataByteSize;
+	ioData->mBuffers[0].mData = packetInfo->data;
 #warning we should not use aspd from retrieved packet directly.
 //	*outDataPacketDescription = &packetInfo.packetDescription;
-    UInt32 length = packetInfo.packetDescription.mDataByteSize;
+    UInt32 length = packetInfo->packetDescription.mDataByteSize;
     static AudioStreamPacketDescription aspdesc;
     *outDataPacketDescription = &aspdesc;
     aspdesc.mDataByteSize = length;
     aspdesc.mStartOffset = 0;
     aspdesc.mVariableFramesInPacket = 1;
-	player->packetReadIndex ++;
 	return noErr;
 }
 
@@ -62,13 +42,13 @@ OSStatus NJAURenderCallback(void *							inRefCon,
 						  UInt32							inNumberFrames,
 						  AudioBufferList *				ioData)
 {
-	NJAUGraphPlayer *player = (NJAUGraphPlayer *)inRefCon;
-	OSStatus status = AudioConverterFillComplexBuffer(player->converter, NJFillUnCompressedData, player, &inNumberFrames, player->renderAudioBufferList, NULL);
+	NJAudioEngine *audioEngine = (__bridge NJAudioEngine *)(inRefCon);
+    OSStatus status = AudioConverterFillComplexBuffer(audioEngine.player->converter, NJFillUnCompressedData, (__bridge void *)(audioEngine), &inNumberFrames, audioEngine.player->renderAudioBufferList, NULL);
 	if (noErr == status && inNumberFrames) {
 		ioData->mNumberBuffers = 1;
 		ioData->mBuffers[0].mNumberChannels = 2;
-		ioData->mBuffers[0].mDataByteSize = player->renderAudioBufferList->mBuffers[0].mDataByteSize;
-		ioData->mBuffers[0].mData = player->renderAudioBufferList->mBuffers[0].mData;
+		ioData->mBuffers[0].mDataByteSize = audioEngine.player->renderAudioBufferList->mBuffers[0].mDataByteSize;
+		ioData->mBuffers[0].mData = audioEngine.player->renderAudioBufferList->mBuffers[0].mData;
 #warning why?
 //		player->renderAudioBufferList->mBuffers[0].mDataByteSize = player->renderBufferSize;
 		status = noErr;
@@ -97,8 +77,9 @@ AudioStreamBasicDescription LPCMStreamDescription()
 	return destFormat;
 }
 
-void createAudioGraph(NJAUGraphPlayer *player)
+void createAudioGraph(NJAudioEngine *audioEngine)
 {
+    NJAUGraphPlayer *player = audioEngine.player;
 	// new AUGraph
 	CheckError(NewAUGraph(&player->graph), "NewAUGraph failed");
 
@@ -127,7 +108,7 @@ void createAudioGraph(NJAUGraphPlayer *player)
 	// set render callback
 	AURenderCallbackStruct callbackStruct;
 	callbackStruct.inputProc = NJAURenderCallback;
-	callbackStruct.inputProcRefCon = player;
+	callbackStruct.inputProcRefCon = (__bridge void *)(audioEngine);
 	CheckError(AudioUnitSetProperty(outputUnit, kAudioUnitProperty_SetRenderCallback, kAudioUnitScope_Input, 0, &callbackStruct, sizeof(callbackStruct)), "AudioUnitSetProperty failed");
 
 	// set isRunning callback
@@ -139,29 +120,23 @@ void createAudioGraph(NJAUGraphPlayer *player)
 	CAShow(player->graph);
 }
 
-@interface NJAudioEngine ()
-{
-	NJAUGraphPlayer *player;
-}
-@end
-
 @implementation NJAudioEngine
 
 - (void)dealloc
 {
 	[self stop];
 
-	AudioConverterReset(player->converter);
-	player->renderAudioBufferList->mNumberBuffers = 1;
-	player->renderAudioBufferList->mBuffers[0].mNumberChannels = 2;
-	player->renderAudioBufferList->mBuffers[0].mDataByteSize = player->renderBufferSize;
-	bzero(player->renderAudioBufferList->mBuffers[0].mData, player->renderBufferSize);
-	AudioConverterDispose(player->converter);
-	free(player->renderAudioBufferList->mBuffers[0].mData);
-	free(player->renderAudioBufferList);
+	AudioConverterReset(self.player->converter);
+	self.player->renderAudioBufferList->mNumberBuffers = 1;
+	self.player->renderAudioBufferList->mBuffers[0].mNumberChannels = 2;
+	self.player->renderAudioBufferList->mBuffers[0].mDataByteSize = self.player->renderBufferSize;
+	bzero(self.player->renderAudioBufferList->mBuffers[0].mData, self.player->renderBufferSize);
+	AudioConverterDispose(self.player->converter);
+	free(self.player->renderAudioBufferList->mBuffers[0].mData);
+	free(self.player->renderAudioBufferList);
 
-	AUGraphUninitialize(player->graph);
-	AUGraphClose(player->graph);
+	AUGraphUninitialize(self.player->graph);
+	AUGraphClose(self.player->graph);
 }
 
 - (id)initWithDelegate:(id <NJAudioEngineDelegate>)inDelegate
@@ -170,71 +145,56 @@ void createAudioGraph(NJAUGraphPlayer *player)
 	if (self) {
 		self.delegate = inDelegate;
 		NJAUGraphPlayer *newPlayer = calloc(1,sizeof(NJAUGraphPlayer));
-		player = newPlayer;
-		createAudioGraph(player);
-		player->expectedTotalPacketCount = 2048;
-		player->packets = (NJAudioPacketInfo *)calloc(player->expectedTotalPacketCount, sizeof(NJAudioPacketInfo)); // allocate buffers for packetData
+		self.player = newPlayer;
+		createAudioGraph(self);
+        self.packetArray = [[NJPacketArray alloc] init];
 	}
 	return self;
 }
 
 - (void)start
 {
-	CheckError(AUGraphStart(player->graph), "AUGraphStart failed");
+	CheckError(AUGraphStart(self.player->graph), "AUGraphStart failed");
 }
 
 - (void)pause
 {
 #warning pause
-	CheckError(AUGraphStop(player->graph), "AUGraphStop failed");
+	CheckError(AUGraphStop(self.player->graph), "AUGraphStop failed");
 }
 
 - (void)stop
 {
-	CheckError(AUGraphStop(player->graph), "AUGraphStop failed");
+	CheckError(AUGraphStop(self.player->graph), "AUGraphStop failed");
 }
 
 - (void)setASBD:(AudioStreamBasicDescription)inASBD
 {
 	// create converter by ASBD
-	memcpy(&player->ASBD, &inASBD, sizeof(AudioStreamBasicDescription));
 	AudioStreamBasicDescription LPCMASBD = LPCMStreamDescription();
-	AudioConverterNew(&inASBD, &LPCMASBD, &player->converter);
+	AudioConverterNew(&inASBD, &LPCMASBD, &self.player->converter);
 
 	UInt32 second = 1;
 	UInt32 packetSize = 44100 * second * 8;
-	player->renderBufferSize = packetSize;
-	player->renderAudioBufferList = (AudioBufferList *)calloc(1, sizeof(AudioBufferList));
-	player->renderAudioBufferList->mNumberBuffers = 1;
-	player->renderAudioBufferList->mBuffers[0].mNumberChannels = 2;
-	player->renderAudioBufferList->mBuffers[0].mDataByteSize = packetSize;
-	player->renderAudioBufferList->mBuffers[0].mData = calloc(1, packetSize);
+	self.player->renderBufferSize = packetSize;
+	self.player->renderAudioBufferList = (AudioBufferList *)calloc(1, sizeof(AudioBufferList));
+	self.player->renderAudioBufferList->mNumberBuffers = 1;
+	self.player->renderAudioBufferList->mBuffers[0].mNumberChannels = 2;
+	self.player->renderAudioBufferList->mBuffers[0].mDataByteSize = packetSize;
+	self.player->renderAudioBufferList->mBuffers[0].mData = calloc(1, packetSize);
 }
 
 - (void)storePacket:(const void *)inData pakcageCount:(UInt32)inPacketCount packetDescription:(AudioStreamPacketDescription *)inPacketDescription
 {
 	@synchronized(self) {
-		for (size_t i = 0 ; i < inPacketCount; i++) {
-			// array size is not enough, so increases it double
-			if (player->packetWriteIndex >= player->expectedTotalPacketCount) {
-				size_t oldSize = player->expectedTotalPacketCount * sizeof(NJAudioPacketInfo);
-				player->expectedTotalPacketCount *= 2;
-				player->packets = (NJAudioPacketInfo *)realloc(player->packets, player->expectedTotalPacketCount * sizeof(NJAudioPacketInfo));
-				bzero((void *)player->packets + oldSize, oldSize);
-			}
-
+		for (NSUInteger i = 0 ; i < inPacketCount; i++) {
 			AudioStreamPacketDescription *packetDescription = &inPacketDescription[i];
-
-			NJAudioPacketInfo *packetInfo = &player->packets[player->packetWriteIndex];
-			if (packetInfo->data) {
-				free(packetInfo->data);
-				packetInfo->data = NULL;
-			}
-			packetInfo->data = malloc(packetDescription->mDataByteSize);
+			NJAudioPacketInfo *packetInfo = calloc(1, sizeof(NJAudioPacketInfo));
+            packetInfo->data = malloc(packetDescription->mDataByteSize);
 			memcpy(packetInfo->data, inData + packetDescription->mStartOffset, packetDescription->mDataByteSize);
 			memcpy(&packetInfo->packetDescription, packetDescription, sizeof(AudioStreamPacketDescription));
-			player->packetWriteIndex ++;
-			player->loadedPacketCount ++;
+            [self.packetArray storePacket:packetInfo];
+            
 		}
 	}
 }

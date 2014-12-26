@@ -9,6 +9,15 @@
 @import Foundation;
 @import AudioToolbox;
 @class NJAudioEngine;
+@class NJPacketArray;
+
+typedef struct NJAUGraphPlayer
+{
+    AUGraph graph;
+    AudioConverterRef converter;
+    AudioBufferList *renderAudioBufferList;
+    UInt32 renderBufferSize;
+} NJAUGraphPlayer;
 
 @protocol NJAudioEngineDelegate <NSObject>
 
@@ -30,4 +39,9 @@
 
 - (void)storePacket:(const void *)inPacket pakcageCount:(UInt32)inPacketCount packetDescription:(AudioStreamPacketDescription *)inPacketDescription;
 - (void)setASBD:(AudioStreamBasicDescription)inASBD;
+@end
+
+@interface NJAudioEngine ()
+@property (assign, nonatomic) NJAUGraphPlayer *player;
+@property (strong, nonatomic) NJPacketArray *packetArray;
 @end
