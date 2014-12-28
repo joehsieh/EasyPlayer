@@ -33,11 +33,15 @@ typedef NS_ENUM(NSInteger, PlayerStateType) {
     if ([self.motionManager isGyroAvailable]) {
         if (![self.motionManager isGyroActive]) {
             [self.motionManager startDeviceMotionUpdatesToQueue:[NSOperationQueue currentQueue] withHandler:^(CMDeviceMotion *motion, NSError *error) {
-                if (motion.gravity.y > 0) {
-                    [[NJPlayer sharedPlayer] setVolume:motion.gravity.y forBusIndex:0];
+                if (motion.gravity.y >= 0) {
+                    CGFloat volume = (1 - motion.gravity.y) / 2.0f;
+                    [[NJPlayer sharedPlayer] setVolume:volume forBusIndex:0];
+                    [[NJPlayer sharedPlayer] setVolume:(1 - volume) forBusIndex:1];
                 }
                 else {
-                    [[NJPlayer sharedPlayer] setVolume:ABS(motion.gravity.y) forBusIndex:1];
+                    CGFloat volume = (1 - ABS(motion.gravity.y)) / 2.0f;
+                    [[NJPlayer sharedPlayer] setVolume:volume forBusIndex:1];
+                    [[NJPlayer sharedPlayer] setVolume:(1 - volume) forBusIndex:0];
                 }
             }];
         }
