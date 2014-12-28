@@ -24,11 +24,11 @@
 @end
 //@interface NJPlayer : NSObject <NJAudioFileFetcherDelegate, NJAudioStreamParserDelegate, NJAudioQueueDelegate>
 @interface NJPlayer : NSObject <NJAudioEngineDelegate>
+@property (nonatomic, assign) id <NJPlayerDelegate> delegate;
 + (instancetype)sharedPlayer;
 - (void)playTestSongs;
 - (void)stop;
 - (void)pause;
 - (void)resume;
-
-@property (nonatomic, assign) id <NJPlayerDelegate> delegate;
+- (void)setVolume:(CGFloat)inVolume forBusIndex:(NSUInteger)inBusIndex;
 @end

@@ -21,6 +21,7 @@ void NJRunningStateChangedCallback(void *inRefCon, AudioUnit ci, AudioUnitProper
 @interface NJAudioEngine ()
 {
     AUGraph graph;
+    AudioUnit mixerUnit;
 }
 @end
 
@@ -103,7 +104,6 @@ void NJRunningStateChangedCallback(void *inRefCon, AudioUnit ci, AudioUnitProper
 
 #warning precision
     // set stream format for all buses
-    AudioUnit mixerUnit;
     CheckError(AUGraphNodeInfo(graph, mixerNode, NULL, &mixerUnit), "AUGraphNodeInfo failed");
     
     NSUInteger busCount = [self.audioDataProviderList count];
@@ -124,6 +124,14 @@ void NJRunningStateChangedCallback(void *inRefCon, AudioUnit ci, AudioUnitProper
     CheckError(AudioUnitAddPropertyListener(outputUnit, kAudioOutputUnitProperty_IsRunning, NJRunningStateChangedCallback, graph), "AudioUnitAddPropertyListener failed");
 
     CAShow(graph);
+}
+
+- (void)setVolume:(CGFloat)inVolume forBusIndex:(NSUInteger)inBusIndex
+{
+    if (inBusIndex > [self.audioDataProviderList count]) {
+        return;
+    }
+    CheckError(AudioUnitSetParameter(mixerUnit, kMultiChannelMixerParam_Volume, kAudioUnitScope_Input, inBusIndex, inVolume, 0), "AudioUnitSetParameter failed");
 }
 
 @end

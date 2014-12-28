@@ -9,6 +9,7 @@
 #import "NJViewController.h"
 #import "NJPlayer.h"
 #import "JHProgressBar.h"
+@import CoreMotion;
 
 typedef NS_ENUM(NSInteger, PlayerStateType) {
     PlayerStateOff,
@@ -16,7 +17,8 @@ typedef NS_ENUM(NSInteger, PlayerStateType) {
     PlayerStatePaused
 };
 @interface NJViewController ()
-@property (nonatomic, assign) PlayerStateType playerState;
+@property (assign, nonatomic) PlayerStateType playerState;
+@property (strong, nonatomic) CMMotionManager *motionManager;
 @end
 
 @implementation NJViewController
@@ -24,10 +26,22 @@ typedef NS_ENUM(NSInteger, PlayerStateType) {
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-//    self.songURLTextField.text = @"http://f10.wretch.yimg.com/a33233323/2/1418398424.mp3";
-    self.songURLTextField.text = @"http://zonble.net/MIDI/orz.mp3";
     self.playerState = PlayerStateOff;
 	// Do any additional setup after loading the view, typically from a nib.
+    self.motionManager = [[CMMotionManager alloc] init];
+    self.motionManager.deviceMotionUpdateInterval = 1.0f;
+    if ([self.motionManager isGyroAvailable]) {
+        if (![self.motionManager isGyroActive]) {
+            [self.motionManager startDeviceMotionUpdatesToQueue:[NSOperationQueue currentQueue] withHandler:^(CMDeviceMotion *motion, NSError *error) {
+                if (motion.gravity.y > 0) {
+                    [[NJPlayer sharedPlayer] setVolume:motion.gravity.y forBusIndex:0];
+                }
+                else {
+                    [[NJPlayer sharedPlayer] setVolume:ABS(motion.gravity.y) forBusIndex:1];
+                }
+            }];
+        }
+    }
 }
 
 - (IBAction)playSong:(id)sender
@@ -41,8 +55,6 @@ typedef NS_ENUM(NSInteger, PlayerStateType) {
         [player resume];
     }
     else if (self.playerState == PlayerStateOff) {
-//        NSString *songURLString = self.songURLTextField.text;
-//        [player playSongWithURL:[NSURL URLWithString:songURLString]];
         [player playTestSongs];
     }
 }

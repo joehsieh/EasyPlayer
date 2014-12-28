@@ -86,6 +86,11 @@
 //    [self.delegate playerDidResumePlayingSong:self];
 //}
 
+- (void)setVolume:(CGFloat)inVolume forBusIndex:(NSUInteger)inBusIndex
+{
+    [self.audioEngine setVolume:inVolume forBusIndex:inBusIndex];
+}
+
 #pragma mark NJAudioEngineDelegate
 
 - (void)audioEngineDidStart:(NJAudioEngine *)inEngine

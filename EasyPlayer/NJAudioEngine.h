@@ -26,4 +26,5 @@
 - (void)start;
 - (void)pause;
 - (void)stop;
+- (void)setVolume:(CGFloat)inVolume forBusIndex:(NSUInteger)inBusIndex;
 @end
