@@ -15,16 +15,29 @@ static void CheckError(OSStatus error, const char *operation) {
 
 static AudioStreamBasicDescription LPCMStreamDescription()
 {
+//    AudioStreamBasicDescription destFormat;
+//    bzero(&destFormat, sizeof(AudioStreamBasicDescription));
+//    destFormat.mSampleRate = 44100.0;
+//    destFormat.mFormatID = kAudioFormatLinearPCM;
+//    destFormat.mReserved = 0;
+//    destFormat.mFormatFlags = kLinearPCMFormatFlagIsFloat;
+//    destFormat.mBitsPerChannel = sizeof(Float32) * 8;
+//    destFormat.mChannelsPerFrame = 1;
+//    destFormat.mBytesPerFrame = destFormat.mChannelsPerFrame * sizeof(Float32);
+//    destFormat.mFramesPerPacket = 1;
+//    destFormat.mBytesPerPacket = destFormat.mFramesPerPacket * destFormat.mBytesPerFrame;
+//    return destFormat;
     AudioStreamBasicDescription destFormat;
     bzero(&destFormat, sizeof(AudioStreamBasicDescription));
     destFormat.mSampleRate = 44100.0;
     destFormat.mFormatID = kAudioFormatLinearPCM;
-    destFormat.mReserved = 0;
-    destFormat.mFormatFlags = kLinearPCMFormatFlagIsFloat;
-    destFormat.mBitsPerChannel = sizeof(Float32) * 8;
-    destFormat.mChannelsPerFrame = 1;
-    destFormat.mBytesPerFrame = destFormat.mChannelsPerFrame * sizeof(Float32);
+    destFormat.mFormatFlags = kLinearPCMFormatFlagIsSignedInteger;
+    
     destFormat.mFramesPerPacket = 1;
-    destFormat.mBytesPerPacket = destFormat.mFramesPerPacket * destFormat.mBytesPerFrame;
+    destFormat.mBytesPerPacket = 4;
+    destFormat.mBytesPerFrame = 4;
+    destFormat.mChannelsPerFrame = 2;
+    destFormat.mBitsPerChannel = 16;
+    destFormat.mReserved = 0;
     return destFormat;
 }

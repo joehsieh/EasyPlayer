@@ -14,7 +14,7 @@
 
 #pragma render callback
 
-OSStatus NJFillUnCompressedData(AudioConverterRef               inAudioConverter,
+OSStatus NJFillRawPacketData(AudioConverterRef               inAudioConverter,
                                 UInt32*                         ioNumberDataPackets,
                                 AudioBufferList*                ioData,
                                 AudioStreamPacketDescription**  outDataPacketDescription,
@@ -44,7 +44,7 @@ OSStatus NJAURenderCallback(void *							inRefCon,
                             AudioBufferList *				ioData)
 {
     NJAudiDataProvider *audioDataProvider = (__bridge NJAudiDataProvider *)(inRefCon);
-    OSStatus status = AudioConverterFillComplexBuffer(audioDataProvider.converter, NJFillUnCompressedData, (__bridge void *)(audioDataProvider), &inNumberFrames, audioDataProvider.renderAudioBufferList, NULL);
+    OSStatus status = AudioConverterFillComplexBuffer(audioDataProvider.converter, NJFillRawPacketData, (__bridge void *)(audioDataProvider), &inNumberFrames, audioDataProvider.renderAudioBufferList, NULL);
     if (noErr == status && inNumberFrames) {
         ioData->mNumberBuffers = 1;
         ioData->mBuffers[0].mNumberChannels = 2;

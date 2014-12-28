@@ -46,7 +46,11 @@ void NJRunningStateChangedCallback(void *inRefCon, AudioUnit ci, AudioUnitProper
 
 - (void)start
 {
-	CheckError(AUGraphStart(graph), "AUGraphStart failed");
+    Boolean isRunning;
+    CheckError(AUGraphIsRunning(graph, &isRunning), "AUGraphIsRunning failed");
+    if (!isRunning) {
+        CheckError(AUGraphStart(graph), "AUGraphStart failed");
+    }
 }
 
 - (void)pause
@@ -72,58 +76,53 @@ void NJRunningStateChangedCallback(void *inRefCon, AudioUnit ci, AudioUnitProper
     AUNode outputNode;
     CheckError(AUGraphAddNode(graph, &outputdc, &outputNode), "AUGraphAddNode failed");
     
+    // mixer node
+    AudioComponentDescription mixerdc;
+    bzero(&mixerdc, sizeof(AudioComponentDescription));
+    mixerdc.componentType = kAudioUnitType_Mixer;
+    mixerdc.componentSubType = kAudioUnitSubType_MultiChannelMixer;
+    mixerdc.componentManufacturer = kAudioUnitManufacturer_Apple;
+    AUNode mixerNode;
+    CheckError(AUGraphAddNode(graph, &mixerdc, &mixerNode), "AUGraphAddNode failed");
+    
     // open graph
     CheckError(AUGraphOpen(graph), "AUGraphOpen failed");
     
-    // init graph
-    CheckError(AUGraphInitialize(graph), "AUGraphInitialize failed");
+    // connect nodes
+    AUGraphConnectNodeInput(graph, mixerNode, 0, outputNode, 0);
     
     // set properties of outputNode
     AudioUnit outputUnit;
     CheckError(AUGraphNodeInfo(graph, outputNode, NULL, &outputUnit), "AUGraphNodeInfo failed");
-    
     // set destination stream format
-    AudioStreamBasicDescription LPCMASBD = LPCMStreamDescription();
-    CheckError(AudioUnitSetProperty(outputUnit, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Input, 0, &LPCMASBD, sizeof(LPCMASBD)), "");
+    AudioStreamBasicDescription destFormat = LPCMStreamDescription();
+    CheckError(AudioUnitSetProperty(outputUnit, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Input, 0, &destFormat, sizeof(destFormat)), "AudioUnitSetProperty failed");
     
+    // init graph
+    CheckError(AUGraphInitialize(graph), "AUGraphInitialize failed");
+
+#warning precision
+    // set stream format for all buses
+    AudioUnit mixerUnit;
+    CheckError(AUGraphNodeInfo(graph, mixerNode, NULL, &mixerUnit), "AUGraphNodeInfo failed");
     
-    //    // mixer node
-    //    AudioComponentDescription mixerdc;
-    //    bzero(&mixerdc, sizeof(AudioComponentDescription));
-    //    mixerdc.componentType = kAudioUnitType_Mixer;
-    //    mixerdc.componentSubType = kAudioUnitSubType_MultiChannelMixer;
-    //    mixerdc.componentManufacturer = kAudioUnitManufacturer_Apple;
-    //
-    //#warning precision
-    //    UInt32 busCount = (UInt32)[audioEngine.audioDataProviderList count];
-    //    for (NSUInteger busIndex = 0 ; busIndex < busCount; busIndex ++) {
-    //        CheckError(AudioUnitSetProperty(outputUnit, kAudioUnitProperty_ElementCount, kAudioUnitScope_Input, 0, &busCount, sizeof (busCount)), "AudioUnitSetProperty failed");
-    //
-    //
-    //        status = AudioUnitSetProperty(outputNode, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Input, busIndex, &destFormat, sizeof(destFormat));
-    //
-    //    }
-    //    __unused OSStatus status = AudioUnitSetProperty(self.audioUnit, kAudioUnitProperty_ElementCount, kAudioUnitScope_Input, 0, &busCount, sizeof (busCount));
-    //    status = AudioUnitSetParameter(self.audioUnit, kMultiChannelMixerParam_Volume, kAudioUnitScope_Output, 0, 1.0, 0);
-    //    NSAssert(noErr == status, @"We need to set bus count. %d", (int)status);
-    //    for (UInt32 i = 0; i < busCount; i++) {
-    //        status = AudioUnitSetParameter(self.audioUnit, kMultiChannelMixerParam_Volume, kAudioUnitScope_Input, i, 1.0, 0);
-    //    }
+    NSUInteger busCount = [self.audioDataProviderList count];
+    CheckError(AudioUnitSetProperty(mixerUnit, kAudioUnitProperty_ElementCount, kAudioUnitScope_Input, 0, &busCount, sizeof(busCount)), "AudioUnitSetProperty failed");
     
-    // set render callback
-    //	callbackStruct.inputProc = NJAURenderCallback;
-    NJAudiDataProvider *audioDataProvider = self.audioDataProviderList[0];
-    //    callbackStruct.inputProc = audioDataProvider.
-    //	callbackStruct.inputProcRefCon = (__bridge void *)(audioEngine);
-    AURenderCallbackStruct renderCallbackStruct = audioDataProvider.renderCallbackStruct;
-    CheckError(AudioUnitSetProperty(outputUnit, kAudioUnitProperty_SetRenderCallback, kAudioUnitScope_Input, 0, &renderCallbackStruct, sizeof(renderCallbackStruct)), "AudioUnitSetProperty failed");
+    for (NSUInteger busIndex = 0 ; busIndex < busCount; busIndex ++) {
+        AudioUnitSetProperty(mixerUnit, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Input, busIndex, &destFormat, sizeof(destFormat));
+        AudioUnitSetProperty(mixerUnit, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Output, busIndex, &destFormat, sizeof(destFormat));
+        
+        NJAudiDataProvider *audioDataProvider = self.audioDataProviderList[busIndex];
+        AURenderCallbackStruct renderCallbackStruct = audioDataProvider.renderCallbackStruct;
+        CheckError(AudioUnitSetProperty(mixerUnit, kAudioUnitProperty_SetRenderCallback, kAudioUnitScope_Input, busIndex, &renderCallbackStruct, sizeof(renderCallbackStruct)), "AudioUnitSetProperty failed");
+        // set volume
+        CheckError(AudioUnitSetParameter(mixerUnit, kMultiChannelMixerParam_Volume, kAudioUnitScope_Input, busIndex, 1.0, 0), "AudioUnitSetParameter failed");
+    }
     
     // set isRunning callback
     CheckError(AudioUnitAddPropertyListener(outputUnit, kAudioOutputUnitProperty_IsRunning, NJRunningStateChangedCallback, graph), "AudioUnitAddPropertyListener failed");
-    
-    // set volume
-    CheckError(AudioUnitSetParameter(outputUnit, kHALOutputParam_Volume, kAudioUnitScope_Global, 0, 1.0, 0), "AudioUnitSetParameter failed");
-    
+
     CAShow(graph);
 }
 

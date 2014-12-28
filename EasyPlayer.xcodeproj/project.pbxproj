@@ -127,19 +127,9 @@
 			children = (
 				53D3CA2E18B7CDFB00650679 /* NJPlayer.h */,
 				53D3CA2F18B7CDFB00650679 /* NJPlayer.m */,
-				531EFD6418B7B81E00D63C62 /* NJAudioFileFetcher.h */,
-				531EFD6518B7B81E00D63C62 /* NJAudioFileFetcher.m */,
-				53D3CA3118B90F3500650679 /* NJAudioStreamParser.h */,
-				53D3CA3218B90F3500650679 /* NJAudioStreamParser.m */,
-				53D3CA7C18C0B35400650679 /* NJAudioQueue.h */,
-				53D3CA7D18C0B35400650679 /* NJAudioQueue.m */,
 				390D0A6A1A3AF54800947F7F /* AudioUtilities.h */,
-				39B296D81A41674500BB9BA7 /* NJAudioEngine.h */,
-				39B296D91A41674500BB9BA7 /* NJAudioEngine.m */,
-				532262561A4C6B7200B1B374 /* NJPacketArray.h */,
-				532262571A4C6B7200B1B374 /* NJPacketArray.m */,
-				537F3C791A4EFAF200BD483B /* NJAudiDataProvider.h */,
-				537F3C7A1A4EFAF200BD483B /* NJAudiDataProvider.m */,
+				537F3C7E1A4FC12B00BD483B /* AudioEngine */,
+				537F3C7D1A4FC0FA00BD483B /* AudioDataProvider */,
 			);
 			name = Audio;
 			sourceTree = "<group>";
@@ -216,6 +206,32 @@
 				531EFD5718B7B7A500D63C62 /* InfoPlist.strings */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		537F3C7D1A4FC0FA00BD483B /* AudioDataProvider */ = {
+			isa = PBXGroup;
+			children = (
+				531EFD6418B7B81E00D63C62 /* NJAudioFileFetcher.h */,
+				531EFD6518B7B81E00D63C62 /* NJAudioFileFetcher.m */,
+				53D3CA3118B90F3500650679 /* NJAudioStreamParser.h */,
+				53D3CA3218B90F3500650679 /* NJAudioStreamParser.m */,
+				532262561A4C6B7200B1B374 /* NJPacketArray.h */,
+				532262571A4C6B7200B1B374 /* NJPacketArray.m */,
+				537F3C791A4EFAF200BD483B /* NJAudiDataProvider.h */,
+				537F3C7A1A4EFAF200BD483B /* NJAudiDataProvider.m */,
+			);
+			name = AudioDataProvider;
+			sourceTree = "<group>";
+		};
+		537F3C7E1A4FC12B00BD483B /* AudioEngine */ = {
+			isa = PBXGroup;
+			children = (
+				53D3CA7C18C0B35400650679 /* NJAudioQueue.h */,
+				53D3CA7D18C0B35400650679 /* NJAudioQueue.m */,
+				39B296D81A41674500BB9BA7 /* NJAudioEngine.h */,
+				39B296D91A41674500BB9BA7 /* NJAudioEngine.m */,
+			);
+			name = AudioEngine;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
