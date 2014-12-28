@@ -11,192 +11,120 @@
 #import "NJPacketArray.h"
 @import AudioUnit;
 
-#pragma render callback
-
-OSStatus NJFillUnCompressedData(AudioConverterRef               inAudioConverter,
-								UInt32*                         ioNumberDataPackets,
-								AudioBufferList*                ioData,
-								AudioStreamPacketDescription**  outDataPacketDescription,
-								void*                           inUserData)
-{
-	NJAudioEngine *audioEngine = (__bridge NJAudioEngine *)inUserData;
-	NJAudioPacketInfo *packetInfo = [audioEngine.packetArray readNextPacket];
-	ioData->mNumberBuffers = 1;
-	ioData->mBuffers[0].mDataByteSize = packetInfo->packetDescription.mDataByteSize;
-	ioData->mBuffers[0].mData = packetInfo->data;
-#warning we should not use aspd from retrieved packet directly.
-//	*outDataPacketDescription = &packetInfo.packetDescription;
-    UInt32 length = packetInfo->packetDescription.mDataByteSize;
-    static AudioStreamPacketDescription aspdesc;
-    *outDataPacketDescription = &aspdesc;
-    aspdesc.mDataByteSize = length;
-    aspdesc.mStartOffset = 0;
-    aspdesc.mVariableFramesInPacket = 1;
-	return noErr;
-}
-
-OSStatus NJAURenderCallback(void *							inRefCon,
-						  AudioUnitRenderActionFlags *	ioActionFlags,
-						  const AudioTimeStamp *			inTimeStamp,
-						  UInt32							inBusNumber,
-						  UInt32							inNumberFrames,
-						  AudioBufferList *				ioData)
-{
-	NJAudioEngine *audioEngine = (__bridge NJAudioEngine *)(inRefCon);
-    OSStatus status = AudioConverterFillComplexBuffer(audioEngine.player->converter, NJFillUnCompressedData, (__bridge void *)(audioEngine), &inNumberFrames, audioEngine.player->renderAudioBufferList, NULL);
-	if (noErr == status && inNumberFrames) {
-		ioData->mNumberBuffers = 1;
-		ioData->mBuffers[0].mNumberChannels = 2;
-		ioData->mBuffers[0].mDataByteSize = audioEngine.player->renderAudioBufferList->mBuffers[0].mDataByteSize;
-		ioData->mBuffers[0].mData = audioEngine.player->renderAudioBufferList->mBuffers[0].mData;
-#warning why?
-//		player->renderAudioBufferList->mBuffers[0].mDataByteSize = player->renderBufferSize;
-		status = noErr;
-	}
-	return status;
-}
+#import "NJAudiDataProvider.h"
 
 void NJRunningStateChangedCallback(void *inRefCon, AudioUnit ci, AudioUnitPropertyID inID, AudioUnitScope inScope, AudioUnitElement inElement)
 {
 
 }
 
-AudioStreamBasicDescription LPCMStreamDescription()
+@interface NJAudioEngine ()
 {
-	AudioStreamBasicDescription destFormat;
-	bzero(&destFormat, sizeof(AudioStreamBasicDescription));
-	destFormat.mSampleRate = 44100.0;
-	destFormat.mFormatID = kAudioFormatLinearPCM;
-	destFormat.mReserved = 0;
-	destFormat.mFormatFlags = kLinearPCMFormatFlagIsFloat;
-	destFormat.mBitsPerChannel = sizeof(Float32) * 8;
-	destFormat.mChannelsPerFrame = 1;
-	destFormat.mBytesPerFrame = destFormat.mChannelsPerFrame * sizeof(Float32);
-	destFormat.mFramesPerPacket = 1;
-	destFormat.mBytesPerPacket = destFormat.mFramesPerPacket * destFormat.mBytesPerFrame;
-	return destFormat;
+    AUGraph graph;
 }
-
-void createAudioGraph(NJAudioEngine *audioEngine)
-{
-    NJAUGraphPlayer *player = audioEngine.player;
-	// new AUGraph
-	CheckError(NewAUGraph(&player->graph), "NewAUGraph failed");
-
-	// new output node
-	AudioComponentDescription outputdc;
-	outputdc.componentType = kAudioUnitType_Output;
-	outputdc.componentSubType = kAudioUnitSubType_RemoteIO;
-	outputdc.componentManufacturer = kAudioUnitManufacturer_Apple;
-	AUNode outputNode;
-	CheckError(AUGraphAddNode(player->graph, &outputdc, &outputNode), "AUGraphAddNode failed");
-
-	// open graph
-	CheckError(AUGraphOpen(player->graph), "AUGraphOpen failed");
-
-	// init graph
-	CheckError(AUGraphInitialize(player->graph), "AUGraphInitialize failed");
-
-	// set properties of outputNode
-	AudioUnit outputUnit;
-	CheckError(AUGraphNodeInfo(player->graph, outputNode, NULL, &outputUnit), "AUGraphNodeInfo failed");
-
-	// set destination stream format
-	AudioStreamBasicDescription LPCMASBD = LPCMStreamDescription();
-	CheckError(AudioUnitSetProperty(outputUnit, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Input, 0, &LPCMASBD, sizeof(LPCMASBD)), "");
-
-	// set render callback
-	AURenderCallbackStruct callbackStruct;
-	callbackStruct.inputProc = NJAURenderCallback;
-	callbackStruct.inputProcRefCon = (__bridge void *)(audioEngine);
-	CheckError(AudioUnitSetProperty(outputUnit, kAudioUnitProperty_SetRenderCallback, kAudioUnitScope_Input, 0, &callbackStruct, sizeof(callbackStruct)), "AudioUnitSetProperty failed");
-
-	// set isRunning callback
-	CheckError(AudioUnitAddPropertyListener(outputUnit, kAudioOutputUnitProperty_IsRunning, NJRunningStateChangedCallback, player), "AudioUnitAddPropertyListener failed");
-
-	// set volume
-	CheckError(AudioUnitSetParameter(outputUnit, kHALOutputParam_Volume, kAudioUnitScope_Global, 0, 1.0, 0), "AudioUnitSetParameter failed");
-
-	CAShow(player->graph);
-}
+@end
 
 @implementation NJAudioEngine
 
 - (void)dealloc
 {
 	[self stop];
-
-	AudioConverterReset(self.player->converter);
-	self.player->renderAudioBufferList->mNumberBuffers = 1;
-	self.player->renderAudioBufferList->mBuffers[0].mNumberChannels = 2;
-	self.player->renderAudioBufferList->mBuffers[0].mDataByteSize = self.player->renderBufferSize;
-	bzero(self.player->renderAudioBufferList->mBuffers[0].mData, self.player->renderBufferSize);
-	AudioConverterDispose(self.player->converter);
-	free(self.player->renderAudioBufferList->mBuffers[0].mData);
-	free(self.player->renderAudioBufferList);
-
-	AUGraphUninitialize(self.player->graph);
-	AUGraphClose(self.player->graph);
+	AUGraphUninitialize(graph);
+	AUGraphClose(graph);
 }
 
-- (id)initWithDelegate:(id <NJAudioEngineDelegate>)inDelegate
+- (id)initWithDelegate:(id <NJAudioEngineDelegate>)inDelegate audioDataProviderList:(NSArray *)inAudioDataProviderList
 {
 	self = [super init];
 	if (self) {
 		self.delegate = inDelegate;
-		NJAUGraphPlayer *newPlayer = calloc(1,sizeof(NJAUGraphPlayer));
-		self.player = newPlayer;
-		createAudioGraph(self);
-        self.packetArray = [[NJPacketArray alloc] init];
+        self.audioDataProviderList = inAudioDataProviderList;
+        [self _createAudioGraph];
 	}
 	return self;
 }
 
 - (void)start
 {
-	CheckError(AUGraphStart(self.player->graph), "AUGraphStart failed");
+	CheckError(AUGraphStart(graph), "AUGraphStart failed");
 }
 
 - (void)pause
 {
 #warning pause
-	CheckError(AUGraphStop(self.player->graph), "AUGraphStop failed");
+	CheckError(AUGraphStop(graph), "AUGraphStop failed");
 }
 
 - (void)stop
 {
-	CheckError(AUGraphStop(self.player->graph), "AUGraphStop failed");
+	CheckError(AUGraphStop(graph), "AUGraphStop failed");
 }
 
-- (void)setASBD:(AudioStreamBasicDescription)inASBD
+- (void)_createAudioGraph
 {
-	// create converter by ASBD
-	AudioStreamBasicDescription LPCMASBD = LPCMStreamDescription();
-	AudioConverterNew(&inASBD, &LPCMASBD, &self.player->converter);
-
-	UInt32 second = 1;
-	UInt32 packetSize = 44100 * second * 8;
-	self.player->renderBufferSize = packetSize;
-	self.player->renderAudioBufferList = (AudioBufferList *)calloc(1, sizeof(AudioBufferList));
-	self.player->renderAudioBufferList->mNumberBuffers = 1;
-	self.player->renderAudioBufferList->mBuffers[0].mNumberChannels = 2;
-	self.player->renderAudioBufferList->mBuffers[0].mDataByteSize = packetSize;
-	self.player->renderAudioBufferList->mBuffers[0].mData = calloc(1, packetSize);
-}
-
-- (void)storePacket:(const void *)inData pakcageCount:(UInt32)inPacketCount packetDescription:(AudioStreamPacketDescription *)inPacketDescription
-{
-	@synchronized(self) {
-		for (NSUInteger i = 0 ; i < inPacketCount; i++) {
-			AudioStreamPacketDescription *packetDescription = &inPacketDescription[i];
-			NJAudioPacketInfo *packetInfo = calloc(1, sizeof(NJAudioPacketInfo));
-            packetInfo->data = malloc(packetDescription->mDataByteSize);
-			memcpy(packetInfo->data, inData + packetDescription->mStartOffset, packetDescription->mDataByteSize);
-			memcpy(&packetInfo->packetDescription, packetDescription, sizeof(AudioStreamPacketDescription));
-            [self.packetArray storePacket:packetInfo];
-            
-		}
-	}
+    // new AUGraph
+    CheckError(NewAUGraph(&graph), "NewAUGraph failed");
+    // new output node
+    AudioComponentDescription outputdc;
+    outputdc.componentType = kAudioUnitType_Output;
+    outputdc.componentSubType = kAudioUnitSubType_RemoteIO;
+    outputdc.componentManufacturer = kAudioUnitManufacturer_Apple;
+    AUNode outputNode;
+    CheckError(AUGraphAddNode(graph, &outputdc, &outputNode), "AUGraphAddNode failed");
+    
+    // open graph
+    CheckError(AUGraphOpen(graph), "AUGraphOpen failed");
+    
+    // init graph
+    CheckError(AUGraphInitialize(graph), "AUGraphInitialize failed");
+    
+    // set properties of outputNode
+    AudioUnit outputUnit;
+    CheckError(AUGraphNodeInfo(graph, outputNode, NULL, &outputUnit), "AUGraphNodeInfo failed");
+    
+    // set destination stream format
+    AudioStreamBasicDescription LPCMASBD = LPCMStreamDescription();
+    CheckError(AudioUnitSetProperty(outputUnit, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Input, 0, &LPCMASBD, sizeof(LPCMASBD)), "");
+    
+    
+    //    // mixer node
+    //    AudioComponentDescription mixerdc;
+    //    bzero(&mixerdc, sizeof(AudioComponentDescription));
+    //    mixerdc.componentType = kAudioUnitType_Mixer;
+    //    mixerdc.componentSubType = kAudioUnitSubType_MultiChannelMixer;
+    //    mixerdc.componentManufacturer = kAudioUnitManufacturer_Apple;
+    //
+    //#warning precision
+    //    UInt32 busCount = (UInt32)[audioEngine.audioDataProviderList count];
+    //    for (NSUInteger busIndex = 0 ; busIndex < busCount; busIndex ++) {
+    //        CheckError(AudioUnitSetProperty(outputUnit, kAudioUnitProperty_ElementCount, kAudioUnitScope_Input, 0, &busCount, sizeof (busCount)), "AudioUnitSetProperty failed");
+    //
+    //
+    //        status = AudioUnitSetProperty(outputNode, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Input, busIndex, &destFormat, sizeof(destFormat));
+    //
+    //    }
+    //    __unused OSStatus status = AudioUnitSetProperty(self.audioUnit, kAudioUnitProperty_ElementCount, kAudioUnitScope_Input, 0, &busCount, sizeof (busCount));
+    //    status = AudioUnitSetParameter(self.audioUnit, kMultiChannelMixerParam_Volume, kAudioUnitScope_Output, 0, 1.0, 0);
+    //    NSAssert(noErr == status, @"We need to set bus count. %d", (int)status);
+    //    for (UInt32 i = 0; i < busCount; i++) {
+    //        status = AudioUnitSetParameter(self.audioUnit, kMultiChannelMixerParam_Volume, kAudioUnitScope_Input, i, 1.0, 0);
+    //    }
+    
+    // set render callback
+    //	callbackStruct.inputProc = NJAURenderCallback;
+    NJAudiDataProvider *audioDataProvider = self.audioDataProviderList[0];
+    //    callbackStruct.inputProc = audioDataProvider.
+    //	callbackStruct.inputProcRefCon = (__bridge void *)(audioEngine);
+    AURenderCallbackStruct renderCallbackStruct = audioDataProvider.renderCallbackStruct;
+    CheckError(AudioUnitSetProperty(outputUnit, kAudioUnitProperty_SetRenderCallback, kAudioUnitScope_Input, 0, &renderCallbackStruct, sizeof(renderCallbackStruct)), "AudioUnitSetProperty failed");
+    
+    // set isRunning callback
+    CheckError(AudioUnitAddPropertyListener(outputUnit, kAudioOutputUnitProperty_IsRunning, NJRunningStateChangedCallback, graph), "AudioUnitAddPropertyListener failed");
+    
+    // set volume
+    CheckError(AudioUnitSetParameter(outputUnit, kHALOutputParam_Volume, kAudioUnitScope_Global, 0, 1.0, 0), "AudioUnitSetParameter failed");
+    
+    CAShow(graph);
 }
 
 @end

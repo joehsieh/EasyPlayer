@@ -11,14 +11,6 @@
 @class NJAudioEngine;
 @class NJPacketArray;
 
-typedef struct NJAUGraphPlayer
-{
-    AUGraph graph;
-    AudioConverterRef converter;
-    AudioBufferList *renderAudioBufferList;
-    UInt32 renderBufferSize;
-} NJAUGraphPlayer;
-
 @protocol NJAudioEngineDelegate <NSObject>
 
 - (void)audioEngineDidStart:(NJAudioEngine *)inEngine;
@@ -26,22 +18,12 @@ typedef struct NJAUGraphPlayer
 - (void)audioEngineDidPause:(NJAudioEngine *)inEngine;
 - (void)audioEngineDidResume:(NJAudioEngine *)inEngine;
 @end
+
 @interface NJAudioEngine : NSObject
+@property (strong, nonatomic) NSArray *audioDataProviderList;
 @property (weak, nonatomic) id <NJAudioEngineDelegate> delegate;
-- (id)initWithDelegate:(id <NJAudioEngineDelegate>)inDelegate;
+- (id)initWithDelegate:(id <NJAudioEngineDelegate>)inDelegate audioDataProviderList:(NSArray *)inAudioDataProviderList;
 - (void)start;
 - (void)pause;
 - (void)stop;
-//- (AudioQueueBufferRef)createAudioQueueBufferRefWithData:(NSData *)data
-//											 packetCount:(UInt32)packetCount
-//									  packetDescriptions:(AudioStreamPacketDescription *)packetDescriptions;
-//- (void)enqueueBuffer:(AudioQueueBufferRef)bufferRef;
-
-- (void)storePacket:(const void *)inPacket pakcageCount:(UInt32)inPacketCount packetDescription:(AudioStreamPacketDescription *)inPacketDescription;
-- (void)setASBD:(AudioStreamBasicDescription)inASBD;
-@end
-
-@interface NJAudioEngine ()
-@property (assign, nonatomic) NJAUGraphPlayer *player;
-@property (strong, nonatomic) NJPacketArray *packetArray;
 @end

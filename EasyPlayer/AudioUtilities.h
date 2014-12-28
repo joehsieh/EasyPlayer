@@ -12,3 +12,19 @@ static void CheckError(OSStatus error, const char *operation) {
 	fprintf(stderr, "Error: %s (%s)\n", operation, errorString);
 	assert(error == noErr);
 }
+
+static AudioStreamBasicDescription LPCMStreamDescription()
+{
+    AudioStreamBasicDescription destFormat;
+    bzero(&destFormat, sizeof(AudioStreamBasicDescription));
+    destFormat.mSampleRate = 44100.0;
+    destFormat.mFormatID = kAudioFormatLinearPCM;
+    destFormat.mReserved = 0;
+    destFormat.mFormatFlags = kLinearPCMFormatFlagIsFloat;
+    destFormat.mBitsPerChannel = sizeof(Float32) * 8;
+    destFormat.mChannelsPerFrame = 1;
+    destFormat.mBytesPerFrame = destFormat.mChannelsPerFrame * sizeof(Float32);
+    destFormat.mFramesPerPacket = 1;
+    destFormat.mBytesPerPacket = destFormat.mFramesPerPacket * destFormat.mBytesPerFrame;
+    return destFormat;
+}

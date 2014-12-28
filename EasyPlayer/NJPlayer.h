@@ -23,9 +23,9 @@
 - (void)player:(NJPlayer *)inPlayer updatePlaybackTime:(NSTimeInterval)inTime;
 @end
 //@interface NJPlayer : NSObject <NJAudioFileFetcherDelegate, NJAudioStreamParserDelegate, NJAudioQueueDelegate>
-@interface NJPlayer : NSObject <NJAudioFileFetcherDelegate, NJAudioStreamParserDelegate, NJAudioEngineDelegate>
+@interface NJPlayer : NSObject <NJAudioEngineDelegate>
 + (instancetype)sharedPlayer;
-- (void)playSongWithURL:(NSURL *)inURL;
+- (void)playTestSongs;
 - (void)stop;
 - (void)pause;
 - (void)resume;

@@ -7,10 +7,9 @@
 //
 
 #import "NJPlayer.h"
+#import "NJAudiDataProvider.h"
 
-@interface NJPlayer()
-@property (nonatomic, strong) NJAudioFileFetcher *fetcher;
-@property (nonatomic, strong) NJAudioStreamParser *streamParser;
+@interface NJPlayer() <NJAudiDataProviderDelegate>
 //@property (nonatomic, strong) NJAudioQueue *audioQueue;
 @property (nonatomic, strong) NJAudioEngine *audioEngine;
 @end
@@ -30,18 +29,24 @@
 {
     self = [super init];
     if (self) {
-        self.fetcher = [[NJAudioFileFetcher alloc] initWithDelegate:self];
-        self.streamParser = [[NJAudioStreamParser alloc] initWithDelegate:self];
+        NJAudiDataProvider *dataProvider1 = [[NJAudiDataProvider alloc] init];
+        dataProvider1.delegate = self;
+        NJAudiDataProvider *dataProvider2 = [[NJAudiDataProvider alloc] init];
+        dataProvider2.delegate = self;
 //        self.audioQueue = [[NJAudioQueue alloc] initWithDelegate:self];
-		self.audioEngine = [[NJAudioEngine alloc] initWithDelegate:self];
+		self.audioEngine = [[NJAudioEngine alloc] initWithDelegate:self audioDataProviderList:@[dataProvider1, dataProvider2]];
     }
     return self;
 }
 
-- (void)playSongWithURL:(NSURL *)inURL
+- (void)playTestSongs
 {
     NSAssert(self.delegate, @"delegate must exist");
-    [self.fetcher fetchMusicWithURL:inURL];
+    NSArray *urlStrings = @[@"http://zonble.net/MIDI/orz.mp3", @"http://zonble.net/MIDI/mabi.mp3"];
+    for (NSUInteger i = 0 ;i < [urlStrings count] ; i++) {
+        NJAudiDataProvider *audioDataProvider = self.audioEngine.audioDataProviderList[i];
+        [audioDataProvider fetchAudioRawDataByURL:[NSURL URLWithString:urlStrings[i]]];
+    }
 }
 
 - (void)stop
@@ -60,46 +65,6 @@
 {
 //    [self.audioQueue start];
 	[self.audioEngine start];
-}
-
-#pragma mark - NJMusicFileFetcherDelegate
-
-- (void)musicFileFetcher:(NJAudioFileFetcher *)inFetcher didReceiveData:(NSData *)inData
-{
-    [self.streamParser parseBytes:inData];
-}
-
-- (void)musicFileFetcher:(NJAudioFileFetcher *)inFetcher didFailedWithError:(NSError *)inError
-{
-    
-}
-
-- (void)musicFileFetcherDidFetchAllData:(NJAudioFileFetcher *)inFetcher
-{
-    
-}
-
-#pragma mark - NJAudioStreamParserDelegate
-
-- (void)audioParser:(NJAudioStreamParser *)inParser didParseASBD:(AudioStreamBasicDescription)inASBD
-{
-//    [self.audioQueue setASBD:inASBD];
-	[self.audioEngine setASBD:inASBD];
-}
-
-- (void)audioParserDidParsedEnoughDataToPlay:(NJAudioStreamParser *)inParser
-{ 
-    dispatch_sync(dispatch_get_main_queue(), ^{
-//        [self.audioQueue start];
-		[self.audioEngine start];
-    });
-}
-
-- (void)audioParser:(NJAudioStreamParser *)inParser didParsePacket:(const void *)inPacket pakcageCount:(UInt32)inPacketCount packetDescription:(AudioStreamPacketDescription *)inPacketDescription
-{
-	[self.audioEngine storePacket:inPacket pakcageCount:inPacketCount packetDescription:inPacketDescription];
-//    AudioQueueBufferRef bufferRef = [self.audioQueue createAudioQueueBufferRefWithData:inPacket packetCount:inPacketCount packetDescriptions:inPacketDescription];
-//    [self.audioQueue enqueueBuffer:bufferRef];
 }
 
 //#pragma mark - NJAudioQueueDelegate
@@ -141,6 +106,14 @@
 - (void)audioEngineDidResume:(NJAudioEngine *)inEngine
 {
 	[self.delegate playerDidResumePlayingSong:self];
+}
+
+#pragma mark NJAudiDataProviderDelegate
+
+- (void)audioDataProviderDidObtainEnoughPlayableData:(NJAudiDataProvider *)inProvider
+{
+    [self resume];
+    [self.delegate playerDidStartPlayingSong:self];
 }
 
 @end

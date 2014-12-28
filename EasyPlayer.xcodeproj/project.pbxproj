@@ -25,6 +25,7 @@
 		531EFD5B18B7B7A500D63C62 /* EasyPlayerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 531EFD5A18B7B7A500D63C62 /* EasyPlayerTests.m */; };
 		531EFD6618B7B81E00D63C62 /* NJAudioFileFetcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 531EFD6518B7B81E00D63C62 /* NJAudioFileFetcher.m */; };
 		532262581A4C6B7200B1B374 /* NJPacketArray.m in Sources */ = {isa = PBXBuildFile; fileRef = 532262571A4C6B7200B1B374 /* NJPacketArray.m */; };
+		537F3C7B1A4EFAF200BD483B /* NJAudiDataProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 537F3C7A1A4EFAF200BD483B /* NJAudiDataProvider.m */; };
 		53D3CA3018B7CDFB00650679 /* NJPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 53D3CA2F18B7CDFB00650679 /* NJPlayer.m */; };
 		53D3CA3318B90F3500650679 /* NJAudioStreamParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 53D3CA3218B90F3500650679 /* NJAudioStreamParser.m */; };
 		53D3CA7E18C0B35400650679 /* NJAudioQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 53D3CA7D18C0B35400650679 /* NJAudioQueue.m */; };
@@ -69,6 +70,8 @@
 		531EFD6518B7B81E00D63C62 /* NJAudioFileFetcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NJAudioFileFetcher.m; sourceTree = "<group>"; };
 		532262561A4C6B7200B1B374 /* NJPacketArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NJPacketArray.h; sourceTree = "<group>"; };
 		532262571A4C6B7200B1B374 /* NJPacketArray.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NJPacketArray.m; sourceTree = "<group>"; };
+		537F3C791A4EFAF200BD483B /* NJAudiDataProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NJAudiDataProvider.h; sourceTree = "<group>"; };
+		537F3C7A1A4EFAF200BD483B /* NJAudiDataProvider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NJAudiDataProvider.m; sourceTree = "<group>"; };
 		53D3CA2E18B7CDFB00650679 /* NJPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NJPlayer.h; sourceTree = "<group>"; };
 		53D3CA2F18B7CDFB00650679 /* NJPlayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NJPlayer.m; sourceTree = "<group>"; };
 		53D3CA3118B90F3500650679 /* NJAudioStreamParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NJAudioStreamParser.h; sourceTree = "<group>"; };
@@ -135,6 +138,8 @@
 				39B296D91A41674500BB9BA7 /* NJAudioEngine.m */,
 				532262561A4C6B7200B1B374 /* NJPacketArray.h */,
 				532262571A4C6B7200B1B374 /* NJPacketArray.m */,
+				537F3C791A4EFAF200BD483B /* NJAudiDataProvider.h */,
+				537F3C7A1A4EFAF200BD483B /* NJAudiDataProvider.m */,
 			);
 			name = Audio;
 			sourceTree = "<group>";
@@ -319,6 +324,7 @@
 				53D3CA3018B7CDFB00650679 /* NJPlayer.m in Sources */,
 				53D3CA3318B90F3500650679 /* NJAudioStreamParser.m in Sources */,
 				531EFD4018B7B7A500D63C62 /* NJAppDelegate.m in Sources */,
+				537F3C7B1A4EFAF200BD483B /* NJAudiDataProvider.m in Sources */,
 				390D0A651A3AE45700947F7F /* JHProgressBar.m in Sources */,
 				531EFD3C18B7B7A500D63C62 /* main.m in Sources */,
 			);

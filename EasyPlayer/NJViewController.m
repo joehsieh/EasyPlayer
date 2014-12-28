@@ -41,8 +41,9 @@ typedef NS_ENUM(NSInteger, PlayerStateType) {
         [player resume];
     }
     else if (self.playerState == PlayerStateOff) {
-        NSString *songURLString = self.songURLTextField.text;
-        [player playSongWithURL:[NSURL URLWithString:songURLString]];
+//        NSString *songURLString = self.songURLTextField.text;
+//        [player playSongWithURL:[NSURL URLWithString:songURLString]];
+        [player playTestSongs];
     }
 }
 
