@@ -13,6 +13,8 @@
 
 #import "NJAudiDataProvider.h"
 
+static NSUInteger const kSampleRate = 44100;
+
 void NJRunningStateChangedCallback(void *inRefCon, AudioUnit ci, AudioUnitPropertyID inID, AudioUnitScope inScope, AudioUnitElement inElement)
 {
 
@@ -22,6 +24,8 @@ void NJRunningStateChangedCallback(void *inRefCon, AudioUnit ci, AudioUnitProper
 {
     AUGraph graph;
     AudioUnit mixerUnit;
+    AudioUnit outputUnit;
+    ExtAudioFileRef audioFileRef;
 }
 @end
 
@@ -41,6 +45,7 @@ void NJRunningStateChangedCallback(void *inRefCon, AudioUnit ci, AudioUnitProper
 		self.delegate = inDelegate;
         self.audioDataProviderList = inAudioDataProviderList;
         [self _createAudioGraph];
+        [self _createAudioFile];
 	}
 	return self;
 }
@@ -63,12 +68,14 @@ void NJRunningStateChangedCallback(void *inRefCon, AudioUnit ci, AudioUnitProper
 - (void)stop
 {
 	CheckError(AUGraphStop(graph), "AUGraphStop failed");
+    CheckError(ExtAudioFileDispose(audioFileRef), "ExtAudioFileDispose failed");
 }
 
 - (void)_createAudioGraph
 {
     // new AUGraph
     CheckError(NewAUGraph(&graph), "NewAUGraph failed");
+    
     // new output node
     AudioComponentDescription outputdc;
     outputdc.componentType = kAudioUnitType_Output;
@@ -93,11 +100,42 @@ void NJRunningStateChangedCallback(void *inRefCon, AudioUnit ci, AudioUnitProper
     AUGraphConnectNodeInput(graph, mixerNode, 0, outputNode, 0);
     
     // set properties of outputNode
-    AudioUnit outputUnit;
     CheckError(AUGraphNodeInfo(graph, outputNode, NULL, &outputUnit), "AUGraphNodeInfo failed");
-    // set destination stream format
+    
+    UInt32 flag = 1;
+    // Enable IO for playng
+    CheckError(AudioUnitSetProperty(outputUnit,
+                                    kAudioOutputUnitProperty_EnableIO,
+                                    kAudioUnitScope_Output,
+                                    0,
+                                    &flag,
+                                    sizeof(flag)), "AudioUnitSetProperty failed");
+    // set stream format for playingh
     AudioStreamBasicDescription destFormat = LPCMStreamDescription();
-    CheckError(AudioUnitSetProperty(outputUnit, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Input, 0, &destFormat, sizeof(destFormat)), "AudioUnitSetProperty failed");
+    CheckError(AudioUnitSetProperty(outputUnit,
+                                    kAudioUnitProperty_StreamFormat,
+                                    kAudioUnitScope_Input,
+                                    0,
+                                    &destFormat,
+                                    sizeof(destFormat)), "AudioUnitSetProperty failed");
+    
+    
+    // Enable IO for recording
+    CheckError(AudioUnitSetProperty(outputUnit,
+                                    kAudioOutputUnitProperty_EnableIO,
+                                    kAudioUnitScope_Input,
+                                    1,
+                                    &flag,
+                                    sizeof(flag)), "");
+
+    // set stream format for recording
+    AudioStreamBasicDescription recordFormat = RecordLPCMStreamDescription();
+    CheckError(AudioUnitSetProperty(outputUnit,
+                                    kAudioUnitProperty_StreamFormat,
+                                    kAudioUnitScope_Output,
+                                    1,
+                                    &recordFormat,
+                                    sizeof(recordFormat)), "AudioUnitSetProperty failed");
     
     // init graph
     CheckError(AUGraphInitialize(graph), "AUGraphInitialize failed");
@@ -120,10 +158,47 @@ void NJRunningStateChangedCallback(void *inRefCon, AudioUnit ci, AudioUnitProper
         CheckError(AudioUnitSetParameter(mixerUnit, kMultiChannelMixerParam_Volume, kAudioUnitScope_Input, busIndex, 1.0, 0), "AudioUnitSetParameter failed");
     }
     
+    // Set input callback
+#warning bus 1 ?
+    AURenderCallbackStruct callbackStruct;
+    callbackStruct.inputProc = NJAURecordCallback;
+    callbackStruct.inputProcRefCon = (__bridge void *)(self);
+    CheckError(AudioUnitSetProperty(outputUnit,
+                                    kAudioOutputUnitProperty_SetInputCallback,
+                                    kAudioUnitScope_Global,
+                                    1,
+                                    &callbackStruct,
+                                    sizeof(callbackStruct)), "AudioUnitSetProperty failed");
+    
     // set isRunning callback
     CheckError(AudioUnitAddPropertyListener(outputUnit, kAudioOutputUnitProperty_IsRunning, NJRunningStateChangedCallback, graph), "AudioUnitAddPropertyListener failed");
 
     CAShow(graph);
+}
+
+OSStatus NJAURecordCallback(void *							inRefCon,
+                            AudioUnitRenderActionFlags *	ioActionFlags,
+                            const AudioTimeStamp *			inTimeStamp,
+                            UInt32							inBusNumber,
+                            UInt32							inNumberFrames,
+                            AudioBufferList *				ioData)
+{
+    NJAudioEngine *engine = (__bridge NJAudioEngine *)inRefCon;
+    double timeInSeconds = inTimeStamp->mSampleTime / kSampleRate;
+    printf("\n%fs inBusNumber: %lu inNumberFrames: %lu ", timeInSeconds, inBusNumber, inNumberFrames);
+    
+    AudioBufferList bufferList;
+    SInt16 samples[inNumberFrames];
+    memset(&samples, 0, sizeof(samples));
+    bufferList.mNumberBuffers = 1;
+    bufferList.mBuffers[0].mData = samples;
+    bufferList.mBuffers[0].mNumberChannels = 1;
+    bufferList.mBuffers[0].mDataByteSize = inNumberFrames * sizeof(SInt16);
+    
+    CheckError(AudioUnitRender(engine->outputUnit, ioActionFlags, inTimeStamp, 1, inNumberFrames, &bufferList), "AudioUnitRender");
+    
+    ExtAudioFileWriteAsync(engine->audioFileRef, inNumberFrames, &bufferList);
+    return noErr;
 }
 
 - (void)setVolume:(CGFloat)inVolume forBusIndex:(NSUInteger)inBusIndex
@@ -132,6 +207,27 @@ void NJRunningStateChangedCallback(void *inRefCon, AudioUnit ci, AudioUnitProper
         return;
     }
     CheckError(AudioUnitSetParameter(mixerUnit, kMultiChannelMixerParam_Volume, kAudioUnitScope_Input, inBusIndex, inVolume, 0), "AudioUnitSetParameter failed");
+}
+
+- (void)_createAudioFile
+{
+    NSArray  *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *documentsDirectory = [paths objectAtIndex:0];
+    NSString *destinationFilePath = [[NSString alloc] initWithFormat: @"%@/output.caf", documentsDirectory];
+    NSLog(@">>> %@\n", destinationFilePath);
+    
+    CFURLRef destinationURL = CFURLCreateWithFileSystemPath(kCFAllocatorDefault, (__bridge CFStringRef)destinationFilePath, kCFURLPOSIXPathStyle, false);
+    
+    AudioStreamBasicDescription asbd = RecordLPCMStreamDescription();
+    OSStatus setupErr = ExtAudioFileCreateWithURL(destinationURL, kAudioFileCAFType, &asbd, NULL, kAudioFileFlags_EraseFile, &audioFileRef);
+    CFRelease(destinationURL);
+    NSAssert(setupErr == noErr, @"Couldn't create file for writing");
+    
+    setupErr = ExtAudioFileSetProperty(audioFileRef, kExtAudioFileProperty_ClientDataFormat, sizeof(AudioStreamBasicDescription), &asbd);
+    NSAssert(setupErr == noErr, @"Couldn't create file for format");
+    
+    setupErr =  ExtAudioFileWriteAsync(audioFileRef, 0, NULL);
+    NSAssert(setupErr == noErr, @"Couldn't initialize write buffers for audio file");
 }
 
 @end

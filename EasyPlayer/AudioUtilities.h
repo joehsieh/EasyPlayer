@@ -27,17 +27,35 @@ static AudioStreamBasicDescription LPCMStreamDescription()
 //    destFormat.mFramesPerPacket = 1;
 //    destFormat.mBytesPerPacket = destFormat.mFramesPerPacket * destFormat.mBytesPerFrame;
 //    return destFormat;
+    
+    
     AudioStreamBasicDescription destFormat;
     bzero(&destFormat, sizeof(AudioStreamBasicDescription));
     destFormat.mSampleRate = 44100.0;
     destFormat.mFormatID = kAudioFormatLinearPCM;
-    destFormat.mFormatFlags = kLinearPCMFormatFlagIsSignedInteger;
+//    destFormat.mFormatFlags = kLinearPCMFormatFlagIsSignedInteger;
+    destFormat.mFormatFlags = kAudioFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked;
     
     destFormat.mFramesPerPacket = 1;
-    destFormat.mBytesPerPacket = 4;
-    destFormat.mBytesPerFrame = 4;
     destFormat.mChannelsPerFrame = 2;
     destFormat.mBitsPerChannel = 16;
+    destFormat.mBytesPerPacket = 4;
+    destFormat.mBytesPerFrame = 4;
     destFormat.mReserved = 0;
     return destFormat;
+}
+
+#warning should get asbd from device
+static AudioStreamBasicDescription RecordLPCMStreamDescription()
+{
+    AudioStreamBasicDescription audioFormat={0};
+    audioFormat.mSampleRate         = 44100;
+    audioFormat.mFormatID           = kAudioFormatLinearPCM;
+    audioFormat.mFormatFlags        = kAudioFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked;
+    audioFormat.mFramesPerPacket    = 1;
+    audioFormat.mChannelsPerFrame   = 1;
+    audioFormat.mBitsPerChannel     = 16;
+    audioFormat.mBytesPerPacket     = 2;
+    audioFormat.mBytesPerFrame      = 2;
+    return audioFormat;
 }
