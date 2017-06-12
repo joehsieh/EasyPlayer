@@ -282,6 +282,9 @@
 				LastUpgradeCheck = 0500;
 				ORGANIZATIONNAME = NJ;
 				TargetAttributes = {
+					531EFD2B18B7B7A500D63C62 = {
+						DevelopmentTeam = 9ZB7R948L5;
+					};
 					531EFD4C18B7B7A500D63C62 = {
 						TestTargetID = 531EFD2B18B7B7A500D63C62;
 					};
@@ -469,6 +472,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				DEVELOPMENT_TEAM = 9ZB7R948L5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "EasyPlayer/EasyPlayer-Prefix.pch";
 				INFOPLIST_FILE = "EasyPlayer/EasyPlayer-Info.plist";
@@ -482,6 +486,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				DEVELOPMENT_TEAM = 9ZB7R948L5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "EasyPlayer/EasyPlayer-Prefix.pch";
 				INFOPLIST_FILE = "EasyPlayer/EasyPlayer-Info.plist";

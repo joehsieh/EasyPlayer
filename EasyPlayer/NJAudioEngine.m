@@ -10,6 +10,7 @@
 #import "AudioUtilities.h"
 #import "NJPacketArray.h"
 @import AudioUnit;
+@import AVFoundation;
 
 #import "NJAudiDataProvider.h"
 
@@ -43,6 +44,10 @@ void NJRunningStateChangedCallback(void *inRefCon, AudioUnit ci, AudioUnitProper
 {
 	self = [super init];
 	if (self) {
+        NSError *audioSessionError = nil;
+        [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayAndRecord error:&audioSessionError];
+        [[AVAudioSession sharedInstance] setActive:YES error:&audioSessionError];
+
 		self.delegate = inDelegate;
         self.audioDataProviderList = inAudioDataProviderList;
         [self _createAudioGraph];
@@ -63,7 +68,6 @@ void NJRunningStateChangedCallback(void *inRefCon, AudioUnit ci, AudioUnitProper
 
 - (void)pause
 {
-#warning pause
 	CheckError(AUGraphStop(graph), "AUGraphStop failed");
 }
 
@@ -107,14 +111,14 @@ void NJRunningStateChangedCallback(void *inRefCon, AudioUnit ci, AudioUnitProper
     CheckError(AUGraphNodeInfo(graph, outputNode, NULL, &outputUnit), "AUGraphNodeInfo failed");
     
     UInt32 flag = 1;
-    // Enable IO for playng
+    // Enable IO for playing
     CheckError(AudioUnitSetProperty(outputUnit,
                                     kAudioOutputUnitProperty_EnableIO,
                                     kAudioUnitScope_Output,
                                     0,
                                     &flag,
                                     sizeof(flag)), "AudioUnitSetProperty failed");
-    // set stream format for playingh
+    // set stream format for playing
     AudioStreamBasicDescription destFormat = LPCMStreamDescription();
     CheckError(AudioUnitSetProperty(outputUnit,
                                     kAudioUnitProperty_StreamFormat,
@@ -144,14 +148,13 @@ void NJRunningStateChangedCallback(void *inRefCon, AudioUnit ci, AudioUnitProper
     // init graph
     CheckError(AUGraphInitialize(graph), "AUGraphInitialize failed");
 
-#warning precision
     // set stream format for all buses
     CheckError(AUGraphNodeInfo(graph, mixerNode, NULL, &mixerUnit), "AUGraphNodeInfo failed");
     
-    NSUInteger busCount = [self.audioDataProviderList count];
+    UInt32 busCount = (UInt32)[self.audioDataProviderList count];
     CheckError(AudioUnitSetProperty(mixerUnit, kAudioUnitProperty_ElementCount, kAudioUnitScope_Input, 0, &busCount, sizeof(busCount)), "AudioUnitSetProperty failed");
-    
-    for (NSUInteger busIndex = 0 ; busIndex < busCount; busIndex ++) {
+
+    for (UInt32 busIndex = 0 ; busIndex < busCount; busIndex ++) {
         AudioUnitSetProperty(mixerUnit, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Input, busIndex, &destFormat, sizeof(destFormat));
         
         NJAudiDataProvider *audioDataProvider = self.audioDataProviderList[busIndex];
@@ -162,7 +165,7 @@ void NJRunningStateChangedCallback(void *inRefCon, AudioUnit ci, AudioUnitProper
     }
 	AudioUnitSetProperty(mixerUnit, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Output, 0, &destFormat, sizeof(destFormat));
     
-    // Set input callback of people
+    // Set input callback of output node
     AURenderCallbackStruct callbackStruct;
     callbackStruct.inputProc = NJAURecordCallback;
     callbackStruct.inputProcRefCon = (__bridge void *)(self);
@@ -174,16 +177,17 @@ void NJRunningStateChangedCallback(void *inRefCon, AudioUnit ci, AudioUnitProper
                                     sizeof(callbackStruct)), "AudioUnitSetProperty failed");
 
 
+#warning FIXME
 	// Set output callback of mixer
-	AURenderCallbackStruct mixerOutputCallbackStruct;
-	mixerOutputCallbackStruct.inputProc = NJMixerOutputCallback;
-	mixerOutputCallbackStruct.inputProcRefCon = (__bridge void *)(self);
-	CheckError(AudioUnitSetProperty(mixerUnit,
-									kAudioUnitProperty_SetRenderCallback,
-									kAudioUnitScope_Output,
-									0,
-									&mixerOutputCallbackStruct,
-									sizeof(mixerOutputCallbackStruct)), "AudioUnitSetProperty failed");
+//	AURenderCallbackStruct mixerOutputCallbackStruct;
+//	mixerOutputCallbackStruct.inputProc = NJMixerOutputCallback;
+//	mixerOutputCallbackStruct.inputProcRefCon = (__bridge void *)(self);
+//	CheckError(AudioUnitSetProperty(mixerUnit,
+//									kAudioUnitProperty_SetRenderCallback,
+//									kAudioUnitScope_Output,
+//									0,
+//									&mixerOutputCallbackStruct,
+//									sizeof(mixerOutputCallbackStruct)), "AudioUnitSetProperty failed");
 
     // set isRunning callback
     CheckError(AudioUnitAddPropertyListener(outputUnit, kAudioOutputUnitProperty_IsRunning, NJRunningStateChangedCallback, graph), "AudioUnitAddPropertyListener failed");
@@ -199,8 +203,8 @@ OSStatus NJAURecordCallback(void *							inRefCon,
                             AudioBufferList *				ioData)
 {
     NJAudioEngine *engine = (__bridge NJAudioEngine *)inRefCon;
-    double timeInSeconds = inTimeStamp->mSampleTime / kSampleRate;
-//    printf("\n%fs inBusNumber: %lu inNumberFrames: %lu ", timeInSeconds, inBusNumber, inNumberFrames);
+    //double timeInSeconds = inTimeStamp->mSampleTime / kSampleRate;
+    //printf("\n%fs inBusNumber: %u inNumberFrames: %u ", timeInSeconds, (unsigned int)inBusNumber, (unsigned int)inNumberFrames);
 
     AudioBufferList bufferList;
     SInt16 samples[inNumberFrames];
@@ -224,24 +228,24 @@ OSStatus NJMixerOutputCallback(void *							inRefCon,
 							AudioBufferList *				ioData)
 {
 	NJAudioEngine *engine = (__bridge NJAudioEngine *)inRefCon;
-//	double timeInSeconds = inTimeStamp->mSampleTime / kSampleRate;
-//	printf("\n%fs inBusNumber: %lu inNumberFrames: %lu ", timeInSeconds, inBusNumber, inNumberFrames);
-//
-//	AudioBufferList bufferList;
-//	SInt16 samples[inNumberFrames];
-//	memset(&samples, 0, sizeof(samples));
-//	bufferList.mNumberBuffers = 1;
-//	bufferList.mBuffers[0].mData = samples;
-//	bufferList.mBuffers[0].mNumberChannels = 1;
-//	bufferList.mBuffers[0].mDataByteSize = inNumberFrames * sizeof(SInt16);
+	double timeInSeconds = inTimeStamp->mSampleTime / kSampleRate;
+	printf("\n%fs inBusNumber: %u inNumberFrames: %u ", timeInSeconds, (unsigned int)inBusNumber, (unsigned int)inNumberFrames);
 
-//	CheckError(AudioUnitRender(engine->outputUnit, ioActionFlags, inTimeStamp, 1, inNumberFrames, &bufferList), "AudioUnitRender");
+	AudioBufferList bufferList;
+	SInt16 samples[inNumberFrames];
+	memset(&samples, 0, sizeof(samples));
+	bufferList.mNumberBuffers = 1;
+	bufferList.mBuffers[0].mData = samples;
+	bufferList.mBuffers[0].mNumberChannels = 1;
+	bufferList.mBuffers[0].mDataByteSize = inNumberFrames * sizeof(SInt16);
 
-	ExtAudioFileWriteAsync(engine->synthesizedAudioFileRef, inNumberFrames, ioData);
+	CheckError(AudioUnitRender(engine->outputUnit, ioActionFlags, inTimeStamp, 1, inNumberFrames, &bufferList), "AudioUnitRender");
+
+	ExtAudioFileWriteAsync(engine->synthesizedAudioFileRef, inNumberFrames, &bufferList);
 	return noErr;
 }
 
-- (void)setVolume:(CGFloat)inVolume forBusIndex:(NSUInteger)inBusIndex
+- (void)setVolume:(CGFloat)inVolume forBusIndex:(UInt32)inBusIndex
 {
     if (inBusIndex > [self.audioDataProviderList count]) {
         return;
