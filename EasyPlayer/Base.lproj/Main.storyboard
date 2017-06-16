@@ -1,9 +1,13 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6250" systemVersion="13E28" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="vXZ-lx-hvc">
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="12118" systemVersion="16F73" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" colorMatched="YES" initialViewController="vXZ-lx-hvc">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6244"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12086"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
         <!--View Controller-->
@@ -15,66 +19,63 @@
                         <viewControllerLayoutGuide type="bottom" id="Y7N-x6-mzO"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="kh9-bI-dsS">
-                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
                             <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="IWk-84-Pdg">
                                 <rect key="frame" x="152" y="96" width="97" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits"/>
                             </textField>
                             <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Song URL" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="CNX-Ig-Bng">
                                 <rect key="frame" x="52" y="99" width="79" height="21"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tpv-Ue-1Vc">
-                                <rect key="frame" x="127" y="495" width="85" height="31"/>
-                                <state key="normal" image="play">
-                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                                </state>
-                                <connections>
-                                    <action selector="playSong:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="xJX-6w-k9c"/>
-                                </connections>
-                            </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vfH-dg-iE7">
-                                <rect key="frame" x="34" y="495" width="85" height="30"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="85" id="jXl-ea-Vqm"/>
-                                </constraints>
-                                <state key="normal" image="previous">
-                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                                </state>
-                                <connections>
-                                    <action selector="playPreviousSong:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="egu-UJ-he4"/>
-                                </connections>
-                            </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="no2-Uf-dg9">
-                                <rect key="frame" x="220" y="496" width="85" height="30"/>
-                                <state key="normal" image="next"/>
-                                <connections>
-                                    <action selector="playNextSong:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="usx-Vi-0c2"/>
-                                </connections>
-                            </button>
                             <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="JEs-rr-N4s" customClass="JHProgressBar">
                                 <rect key="frame" x="58" y="442" width="223" height="26"/>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                             </view>
+                            <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="EiC-xN-sts">
+                                <rect key="frame" x="16" y="593" width="343" height="30"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vfH-dg-iE7">
+                                        <rect key="frame" x="0.0" y="0.0" width="114.5" height="30"/>
+                                        <state key="normal" image="previous">
+                                            <color key="titleShadowColor" red="0.5" green="0.5" blue="0.5" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="playPreviousSong:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="egu-UJ-he4"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tpv-Ue-1Vc">
+                                        <rect key="frame" x="114.5" y="0.0" width="114" height="30"/>
+                                        <state key="normal" image="play">
+                                            <color key="titleShadowColor" red="0.5" green="0.5" blue="0.5" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="playSong:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="xJX-6w-k9c"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="no2-Uf-dg9">
+                                        <rect key="frame" x="228.5" y="0.0" width="114.5" height="30"/>
+                                        <state key="normal" image="next"/>
+                                        <connections>
+                                            <action selector="playNextSong:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="usx-Vi-0c2"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                            </stackView>
                         </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
-                            <constraint firstItem="tpv-Ue-1Vc" firstAttribute="width" secondItem="vfH-dg-iE7" secondAttribute="width" id="0Sq-v9-vdv"/>
-                            <constraint firstItem="vfH-dg-iE7" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leadingMargin" constant="18" id="2Kf-OX-uJS"/>
-                            <constraint firstItem="vfH-dg-iE7" firstAttribute="top" secondItem="tpv-Ue-1Vc" secondAttribute="top" id="4gE-Jd-A72"/>
-                            <constraint firstItem="tpv-Ue-1Vc" firstAttribute="leading" secondItem="vfH-dg-iE7" secondAttribute="trailing" constant="8" id="8zP-IV-e3E"/>
-                            <constraint firstItem="no2-Uf-dg9" firstAttribute="centerY" secondItem="tpv-Ue-1Vc" secondAttribute="centerY" id="ALW-CI-I7a"/>
-                            <constraint firstItem="Y7N-x6-mzO" firstAttribute="top" secondItem="vfH-dg-iE7" secondAttribute="bottom" constant="43" id="NYw-a7-oTh"/>
-                            <constraint firstAttribute="trailingMargin" secondItem="no2-Uf-dg9" secondAttribute="trailing" constant="-1" id="cvh-xi-Vai"/>
-                            <constraint firstItem="tpv-Ue-1Vc" firstAttribute="width" secondItem="no2-Uf-dg9" secondAttribute="width" id="ihf-Ee-5mo"/>
-                            <constraint firstItem="vfH-dg-iE7" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leadingMargin" constant="18" id="lbZ-5U-sUj"/>
-                            <constraint firstItem="Y7N-x6-mzO" firstAttribute="top" secondItem="tpv-Ue-1Vc" secondAttribute="bottom" constant="42" id="wKW-SO-eGU"/>
-                            <constraint firstItem="no2-Uf-dg9" firstAttribute="leading" secondItem="tpv-Ue-1Vc" secondAttribute="trailing" constant="8" id="yjb-cb-kGJ"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="EiC-xN-sts" secondAttribute="trailing" id="5FY-qP-YJX"/>
+                            <constraint firstItem="EiC-xN-sts" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leadingMargin" id="6Ms-HI-EYx"/>
+                            <constraint firstItem="Y7N-x6-mzO" firstAttribute="top" secondItem="EiC-xN-sts" secondAttribute="bottom" constant="44" id="bTP-K6-QKK"/>
                         </constraints>
                     </view>
                     <connections>
@@ -95,6 +96,6 @@
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar"/>
         <simulatedOrientationMetrics key="orientation"/>
-        <simulatedScreenMetrics key="destination" type="retina4"/>
+        <simulatedScreenMetrics key="destination" type="retina4_7.fullscreen"/>
     </simulatedMetricsContainer>
 </document>

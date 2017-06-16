@@ -42,7 +42,8 @@
 - (void)playTestSongs
 {
     NSAssert(self.delegate, @"delegate must exist");
-    NSArray *urlStrings = @[@"http://zonble.net/MIDI/mabi.mp3", @"http://zonble.net/MIDI/orz.mp3"];
+//    NSArray *urlStrings = @[@"http://zonble.net/MIDI/mabi.mp3", @"http://zonble.net/MIDI/orz.mp3"];
+     NSArray *urlStrings = @[@"http://zonble.net/MIDI/mabi.mp3"];
     for (NSUInteger i = 0 ;i < [urlStrings count] ; i++) {
         NJAudiDataProvider *audioDataProvider = self.audioEngine.audioDataProviderList[i];
         [audioDataProvider fetchAudioRawDataByURL:[NSURL URLWithString:urlStrings[i]]];
